@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Collection;
 import java.util.Objects;
@@ -55,28 +54,19 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        switch (type) {
-            case KING:
-                return kingAndKnightMoves(board, myPosition, true);
-            case QUEEN:
-                HashSet<ChessMove> moves = rookAndBishopMoves(board, myPosition, true);
-                moves.addAll(rookAndBishopMoves(board, myPosition, false));
-                return moves;
-            case BISHOP:
-                return rookAndBishopMoves(board, myPosition, false);
-            case KNIGHT:
-                return kingAndKnightMoves(board, myPosition, false);
-            case ROOK:
-                return rookAndBishopMoves(board, myPosition, true);
-            case PAWN:
-            default:
-                return null;
-        }
-    }
-
-    public boolean isSelfOwned(ChessBoard board, ChessPosition pos) {
-        ChessPiece piece = board.getPiece(pos);
-        return piece != null && piece.getTeamColor() == pieceColor;
+        int[][] direction_vectors = switch (type) {
+            case KING -> new int[][]{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+            case QUEEN -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            case BISHOP -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
+            case KNIGHT -> new int[][]{{2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
+            case ROOK -> new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+            case PAWN -> new int[][]{{1, 0}};
+        };
+        int max_steps = switch (type) {
+            case QUEEN, ROOK, BISHOP -> 7;
+            default -> 1;
+        };
+        return calculateMoves(board, myPosition, direction_vectors, max_steps);
     }
 
     public boolean isEnemyOwned(ChessBoard board, ChessPosition pos) {
@@ -90,35 +80,18 @@ public class ChessPiece {
         return 1 <= r && r <= 8 && 1 <= c && c <= 8;
     }
 
-    public HashSet<ChessMove> kingAndKnightMoves(ChessBoard board, ChessPosition myPosition, boolean isKing) {
-        HashSet<ChessMove> moves = new HashSet<>();
-        int[][] directions;
-        if (isKing) {
-            directions = new int[][]{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
-        } else {
-            directions = new int[][]{{2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
-        }
-        for (int[] direction : directions) {
-            ChessPosition candidate = new ChessPosition(myPosition.getRow() + direction[0], myPosition.getColumn() + direction[1]);
-            if (isInbounds(candidate) && !isSelfOwned(board, candidate)) {
-                moves.add(new ChessMove(myPosition, candidate, null));
-            }
-        }
-        return moves;
+    public boolean isValidTarget(ChessBoard board, ChessPosition pos) {
+        if (!isInbounds(pos)) return false;
+        ChessPiece pieceAtTarget = board.getPiece(pos);
+        return pieceAtTarget == null || pieceAtTarget.getTeamColor() != pieceColor;
     }
 
-    public HashSet<ChessMove> rookAndBishopMoves(ChessBoard board, ChessPosition myPosition, boolean isRook) {
+    public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition, int[][] direction_vectors, int max_steps) {
         HashSet<ChessMove> moves = new HashSet<>();
-        int[][] direction_vectors;
-        if (isRook) {
-            direction_vectors = new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-        } else {
-            direction_vectors = new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
-        }
         for (int[] direction_vector : direction_vectors) {
-            for (int i = 1; i < 8; i++) {
+            for (int i = 1; i <= max_steps; i++) {
                 ChessPosition candidate = new ChessPosition(myPosition.getRow() + direction_vector[0] * i, myPosition.getColumn() + direction_vector[1] * i);
-                if (isInbounds(candidate) && !isSelfOwned(board, candidate)) {
+                if (isValidTarget(board, candidate)) {
                     moves.add(new ChessMove(myPosition, candidate, null));
                     if (isEnemyOwned(board, candidate)) {
                         break;
@@ -130,7 +103,6 @@ public class ChessPiece {
         }
         return moves;
     }
-
 
     @Override
     public boolean equals(Object o) {
