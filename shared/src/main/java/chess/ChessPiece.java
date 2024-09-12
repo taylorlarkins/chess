@@ -55,22 +55,15 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        switch (type) {
-            case KING:
-                return kingAndKnightMoves(board, myPosition, true);
-            case QUEEN:
-                return null;
-            case BISHOP:
-                return null;
-            case KNIGHT:
-                return kingAndKnightMoves(board, myPosition, false);
-            case ROOK:
-                return rookAndBishopMoves(board, myPosition, true);
-            case PAWN:
-                return null;
-            default:
-                return null;
-        }
+        return switch (type) {
+            case KING -> kingAndKnightMoves(board, myPosition, true);
+            case QUEEN -> null;
+            case BISHOP -> rookAndBishopMoves(board, myPosition, false);
+            case KNIGHT -> kingAndKnightMoves(board, myPosition, false);
+            case ROOK -> rookAndBishopMoves(board, myPosition, true);
+            case PAWN -> null;
+            default -> null;
+        };
     }
 
     public boolean isSelfOwned(ChessBoard board, ChessPosition pos) {
