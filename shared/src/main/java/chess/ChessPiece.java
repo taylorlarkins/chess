@@ -55,15 +55,23 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return switch (type) {
-            case KING -> kingAndKnightMoves(board, myPosition, true);
-            case QUEEN -> null;
-            case BISHOP -> rookAndBishopMoves(board, myPosition, false);
-            case KNIGHT -> kingAndKnightMoves(board, myPosition, false);
-            case ROOK -> rookAndBishopMoves(board, myPosition, true);
-            case PAWN -> null;
-            default -> null;
-        };
+        switch (type) {
+            case KING:
+                return kingAndKnightMoves(board, myPosition, true);
+            case QUEEN:
+                HashSet<ChessMove> moves = rookAndBishopMoves(board, myPosition, true);
+                moves.addAll(rookAndBishopMoves(board, myPosition, false));
+                return moves;
+            case BISHOP:
+                return rookAndBishopMoves(board, myPosition, false);
+            case KNIGHT:
+                return kingAndKnightMoves(board, myPosition, false);
+            case ROOK:
+                return rookAndBishopMoves(board, myPosition, true);
+            case PAWN:
+            default:
+                return null;
+        }
     }
 
     public boolean isSelfOwned(ChessBoard board, ChessPosition pos) {
@@ -74,10 +82,6 @@ public class ChessPiece {
     public boolean isEnemyOwned(ChessBoard board, ChessPosition pos) {
         ChessPiece piece = board.getPiece(pos);
         return piece != null && piece.getTeamColor() != pieceColor;
-    }
-
-    public boolean isEmpty(ChessBoard board, ChessPosition pos) {
-        return board.getPiece(pos) == null;
     }
 
     public boolean isInbounds(ChessPosition pos) {
