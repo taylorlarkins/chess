@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Collection;
 import java.util.Objects;
@@ -60,7 +61,7 @@ public class ChessPiece {
             case BISHOP -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
             case KNIGHT -> new int[][]{{2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
             case ROOK -> new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-            case PAWN -> new int[][]{{1, 0}};
+            case PAWN -> pawnTargets(board, myPosition);
         };
         int max_steps = switch (type) {
             case QUEEN, ROOK, BISHOP -> 7;
@@ -72,6 +73,10 @@ public class ChessPiece {
     public boolean isEnemyOwned(ChessBoard board, ChessPosition pos) {
         ChessPiece piece = board.getPiece(pos);
         return piece != null && piece.getTeamColor() != pieceColor;
+    }
+
+    public boolean isEmpty(ChessBoard board, ChessPosition pos) {
+        return board.getPiece(pos) == null;
     }
 
     public boolean isInbounds(ChessPosition pos) {
@@ -102,6 +107,20 @@ public class ChessPiece {
             }
         }
         return moves;
+    }
+
+    public int[][] pawnTargets(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<int[]> targets = new ArrayList<>();
+        int r = myPosition.getRow();
+        int c = myPosition.getColumn();
+        if (isEmpty(board, new ChessPosition(r + 1, c))) targets.add(new int[]{1, 0});
+        if (r == 2 && isEmpty(board, new ChessPosition(r + 1, c)) && isEmpty(board, new ChessPosition(r + 2, c)))
+            targets.add(new int[]{2, 0});
+        if (isEnemyOwned(board, new ChessPosition(r + 1, c - 1)))
+            targets.add(new int[]{1, -1});
+        if (isEnemyOwned(board, new ChessPosition(r + 1, c + 1)))
+            targets.add(new int[]{1, 1});
+        return targets.toArray(new int[targets.size()][2]);
     }
 
     @Override
