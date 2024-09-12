@@ -56,18 +56,15 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moves = new HashSet<>();
-        int r = myPosition.getRow();
-        int c = myPosition.getColumn();
-
         switch (type) {
             case KING:
-                return kingMoves(board, myPosition);
+                return kingAndKnightMoves(board, myPosition, true);
             case QUEEN:
                 moves = null;
             case BISHOP:
                 moves = null;
             case KNIGHT:
-                moves = null;
+                return kingAndKnightMoves(board, myPosition, false);
             case ROOK:
                 moves = null;
             case PAWN:
@@ -85,12 +82,17 @@ public class ChessPiece {
     public boolean isInbounds(ChessPosition pos) {
         int r = pos.getRow();
         int c = pos.getColumn();
-        return 1 < r && r < 8 && 1 < c && c < 8;
+        return 1 <= r && r <= 8 && 1 <= c && c <= 8;
     }
 
-    public HashSet<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+    public HashSet<ChessMove> kingAndKnightMoves(ChessBoard board, ChessPosition myPosition, boolean isKing) {
         HashSet<ChessMove> moves = new HashSet<>();
-        int[][] directions = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+        int[][] directions;
+        if (isKing) {
+            directions = new int[][]{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+        } else {
+            directions = new int[][]{{2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
+        }
         for (int[] direction : directions) {
             ChessPosition candidate = new ChessPosition(myPosition.getRow() + direction[0], myPosition.getColumn() + direction[1]);
             if (isInbounds(candidate) && !isSelfOwned(board, candidate)) {
