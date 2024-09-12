@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -54,31 +55,26 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        HashSet<ChessMove> moves = new HashSet<>();
         int r = myPosition.getRow();
         int c = myPosition.getColumn();
 
         switch (type) {
             case KING:
-                moves = null;
-                break;
+                return kingMoves(board, myPosition);
             case QUEEN:
                 moves = null;
-                break;
             case BISHOP:
                 moves = null;
-                break;
             case KNIGHT:
                 moves = null;
-                break;
             case ROOK:
                 moves = null;
-                break;
             case PAWN:
                 moves = null;
-                break;
+            default:
+                return moves;
         }
-        return moves;
     }
 
     public boolean isSelfOwned(ChessBoard board, ChessPosition pos) {
@@ -92,9 +88,18 @@ public class ChessPiece {
         return 1 < r && r < 8 && 1 < c && c < 8;
     }
 
-    public boolean generateMove(ChessBoard board, ChessPosition pos) {
-        return false;
+    public HashSet<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moves = new HashSet<>();
+        int[][] directions = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+        for (int[] direction : directions) {
+            ChessPosition candidate = new ChessPosition(myPosition.getRow() + direction[0], myPosition.getColumn() + direction[1]);
+            if (isInbounds(candidate) && !isSelfOwned(board, candidate)) {
+                moves.add(new ChessMove(myPosition, candidate, null));
+            }
+        }
+        return moves;
     }
+
 
     @Override
     public boolean equals(Object o) {
