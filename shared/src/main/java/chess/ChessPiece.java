@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Collection;
 import java.util.Objects;
@@ -55,13 +54,16 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        if (type == PieceType.PAWN) {
+            return getPawnMoves(board, myPosition);
+        }
         int[][] direction_vectors = switch (type) {
             case KING -> new int[][]{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
             case QUEEN -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}};
             case BISHOP -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
             case KNIGHT -> new int[][]{{2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
             case ROOK -> new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-            case PAWN -> getPawnDirectionVectors(board, myPosition);
+            default -> null;
         };
         int max_steps = switch (type) {
             case QUEEN, ROOK, BISHOP -> 7;
@@ -76,23 +78,34 @@ public class ChessPiece {
     }
 
     public boolean isEmpty(ChessBoard board, ChessPosition pos) {
+        if (outOfBounds(pos)) return false;
         return board.getPiece(pos) == null;
     }
 
-    public boolean isInbounds(ChessPosition pos) {
+    public boolean outOfBounds(ChessPosition pos) {
         int r = pos.getRow();
         int c = pos.getColumn();
-        return 1 <= r && r <= 8 && 1 <= c && c <= 8;
+        return 1 > r || r > 8 || 1 > c || c > 8;
     }
 
     public boolean isValidTarget(ChessBoard board, ChessPosition pos) {
-        if (!isInbounds(pos)) return false;
+        if (outOfBounds(pos)) return false;
         ChessPiece pieceAtTarget = board.getPiece(pos);
         return pieceAtTarget == null || pieceAtTarget.getTeamColor() != pieceColor;
     }
 
+    public boolean shouldPromote(ChessPosition pos) {
+        if (type != PieceType.PAWN) return false;
+        if (pieceColor == ChessGame.TeamColor.WHITE) {
+            return pos.getRow() == 8;
+        } else {
+            return pos.getRow() == 1;
+        }
+    }
+
     public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition, int[][] direction_vectors, int max_steps) {
         HashSet<ChessMove> moves = new HashSet<>();
+
         for (int[] direction_vector : direction_vectors) {
             for (int i = 1; i <= max_steps; i++) {
                 ChessPosition candidate = new ChessPosition(myPosition.getRow() + direction_vector[0] * i, myPosition.getColumn() + direction_vector[1] * i);
@@ -104,33 +117,51 @@ public class ChessPiece {
                 } else {
                     break;
                 }
-                //add promotion logic
             }
         }
         return moves;
     }
 
-    public int[][] getPawnDirectionVectors(ChessBoard board, ChessPosition myPosition) {
-        ArrayList<int[]> direction_vectors = new ArrayList<>();
+    public HashSet<ChessMove> getPawnMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moves = new HashSet<>();
         int team_direction = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
         int pawn_start_row = (pieceColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
+
         ChessPosition left_attack = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn() - 1);
         ChessPosition right_attack = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn() + 1);
         ChessPosition single_advance = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn());
         ChessPosition double_advance = new ChessPosition(myPosition.getRow() + 2 * team_direction, myPosition.getColumn());
+
+        HashSet<ChessPosition> validPosition = new HashSet<>();
+
         if (isEmpty(board, single_advance)) {
-            direction_vectors.add(new int[]{team_direction, 0});
+            validPosition.add(single_advance);
         }
-        if (myPosition.getRow() == pawn_start_row && isEmpty(board, single_advance) && !isEnemyOwned(board, double_advance)) {
-            direction_vectors.add(new int[]{2 * team_direction, 0});
+
+        if (myPosition.getRow() == pawn_start_row && isEmpty(board, single_advance) && isEmpty(board, double_advance)) {
+            validPosition.add(double_advance);
         }
-        if (isEnemyOwned(board, left_attack)) {
-            direction_vectors.add(new int[]{team_direction, -1});
+
+        if (!outOfBounds(left_attack) && isEnemyOwned(board, left_attack)) {
+            validPosition.add(left_attack);
         }
-        if (isEnemyOwned(board, right_attack)) {
-            direction_vectors.add(new int[]{team_direction, 1});
+
+        if (!outOfBounds(left_attack) && isEnemyOwned(board, right_attack)) {
+            validPosition.add(right_attack);
         }
-        return direction_vectors.toArray(new int[direction_vectors.size()][]);
+
+        PieceType[] promotion_options = {null};
+        if (shouldPromote(single_advance)) {
+            promotion_options = new PieceType[]{PieceType.QUEEN, PieceType.BISHOP, PieceType.ROOK, PieceType.KNIGHT};
+        }
+
+        for (ChessPosition target_position : validPosition) {
+            for (PieceType piece : promotion_options) {
+                moves.add(new ChessMove(myPosition, target_position, piece));
+            }
+        }
+
+        return moves;
     }
 
     @Override

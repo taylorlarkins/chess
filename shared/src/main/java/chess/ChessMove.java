@@ -50,7 +50,7 @@ public class ChessMove {
         if (promotionPiece == null) {
             return startPosition.toString() + " => " + endPosition.toString();
         } else {
-            return startPosition.toString() + " => " + endPosition.toString() + "(" + promotionPiece + ")";
+            return startPosition.toString() + " => " + endPosition.toString() + " (" + promotionPiece + ")";
         }
     }
 
