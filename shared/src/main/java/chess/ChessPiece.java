@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Collection;
 import java.util.Objects;
@@ -60,7 +61,7 @@ public class ChessPiece {
             case BISHOP -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
             case KNIGHT -> new int[][]{{2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}};
             case ROOK -> new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-            case PAWN -> new int[][]{{1, 0}};
+            case PAWN -> getPawnDirectionVectors(board, myPosition);
         };
         int max_steps = switch (type) {
             case QUEEN, ROOK, BISHOP -> 7;
@@ -72,6 +73,10 @@ public class ChessPiece {
     public boolean isEnemyOwned(ChessBoard board, ChessPosition pos) {
         ChessPiece piece = board.getPiece(pos);
         return piece != null && piece.getTeamColor() != pieceColor;
+    }
+
+    public boolean isEmpty(ChessBoard board, ChessPosition pos) {
+        return board.getPiece(pos) == null;
     }
 
     public boolean isInbounds(ChessPosition pos) {
@@ -102,6 +107,29 @@ public class ChessPiece {
             }
         }
         return moves;
+    }
+
+    public int[][] getPawnDirectionVectors(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<int[]> direction_vectors = new ArrayList<>();
+        int team_direction = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
+        int pawn_start_row = (pieceColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
+        ChessPosition left_attack = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn() - 1);
+        ChessPosition right_attack = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn() + 1);
+        ChessPosition single_advance = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn());
+        ChessPosition double_advance = new ChessPosition(myPosition.getRow() + 2 * team_direction, myPosition.getColumn());
+        if (isEmpty(board, single_advance)) {
+            direction_vectors.add(new int[]{team_direction, 0});
+        }
+        if (myPosition.getRow() == pawn_start_row && isEmpty(board, single_advance) && !isEnemyOwned(board, double_advance)) {
+            direction_vectors.add(new int[]{2 * team_direction, 0});
+        }
+        if (isEnemyOwned(board, left_attack)) {
+            direction_vectors.add(new int[]{team_direction, -1});
+        }
+        if (isEnemyOwned(board, right_attack)) {
+            direction_vectors.add(new int[]{team_direction, 1});
+        }
+        return direction_vectors.toArray(new int[direction_vectors.size()][]);
     }
 
     @Override
