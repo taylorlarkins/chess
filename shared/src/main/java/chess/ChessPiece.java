@@ -104,6 +104,7 @@ public class ChessPiece {
                 } else {
                     break;
                 }
+                //add promotion logic
             }
         }
         return moves;
