@@ -15,7 +15,7 @@ public class ChessPiece {
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
     }
@@ -73,6 +73,7 @@ public class ChessPiece {
     }
 
     public boolean isEnemyOwned(ChessBoard board, ChessPosition pos) {
+        if (outOfBounds(pos)) return false;
         ChessPiece piece = board.getPiece(pos);
         return piece != null && piece.getTeamColor() != pieceColor;
     }
@@ -142,11 +143,11 @@ public class ChessPiece {
             validPosition.add(double_advance);
         }
 
-        if (!outOfBounds(left_attack) && isEnemyOwned(board, left_attack)) {
+        if (isEnemyOwned(board, left_attack)) {
             validPosition.add(left_attack);
         }
 
-        if (!outOfBounds(left_attack) && isEnemyOwned(board, right_attack)) {
+        if (isEnemyOwned(board, right_attack)) {
             validPosition.add(right_attack);
         }
 
@@ -162,6 +163,20 @@ public class ChessPiece {
         }
 
         return moves;
+    }
+
+    @Override
+    public String toString() {
+        String result = switch (type) {
+            case KING -> "K";
+            case QUEEN -> "Q";
+            case BISHOP -> "B";
+            case KNIGHT -> "N";
+            case ROOK -> "R";
+            case PAWN -> "P";
+        };
+
+        return (pieceColor == ChessGame.TeamColor.WHITE) ? result : result.toLowerCase();
     }
 
     @Override
