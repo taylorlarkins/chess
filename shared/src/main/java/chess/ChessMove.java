@@ -42,16 +42,16 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        return promotionPiece;
     }
 
     @Override
     public String toString() {
-        if (promotionPiece == null) {
-            return startPosition.toString() + " => " + endPosition.toString();
-        } else {
-            return startPosition.toString() + " => " + endPosition.toString() + " (" + promotionPiece + ")";
+        String result = startPosition.toString() + " -> " + endPosition.toString();
+        if (promotionPiece != null) {
+            result += " (" + promotionPiece + ")";
         }
+        return result;
     }
 
     @Override

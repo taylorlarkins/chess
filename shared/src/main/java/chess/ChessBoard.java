@@ -64,7 +64,7 @@ public class ChessBoard {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        for (int i = 0; i < 8; i++) {
+        for (int i = 8; i >= 1; i--) {
             result.append("|");
             for (int j = 0; j < 8; j++) {
                 String piece = (grid[i][j] == null) ? " " : grid[i][j].toString();

@@ -57,6 +57,7 @@ public class ChessPiece {
         if (type == PieceType.PAWN) {
             return getPawnMoves(board, myPosition);
         }
+
         int[][] direction_vectors = switch (type) {
             case KING -> new int[][]{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
             case QUEEN -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}};
@@ -65,10 +66,12 @@ public class ChessPiece {
             case ROOK -> new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
             default -> null;
         };
+
         int max_steps = switch (type) {
             case QUEEN, ROOK, BISHOP -> 7;
             default -> 1;
         };
+
         return calculateMoves(board, myPosition, direction_vectors, max_steps);
     }
 
@@ -93,15 +96,6 @@ public class ChessPiece {
         if (outOfBounds(pos)) return false;
         ChessPiece pieceAtTarget = board.getPiece(pos);
         return pieceAtTarget == null || pieceAtTarget.getTeamColor() != pieceColor;
-    }
-
-    public boolean shouldPromote(ChessPosition pos) {
-        if (type != PieceType.PAWN) return false;
-        if (pieceColor == ChessGame.TeamColor.WHITE) {
-            return pos.getRow() == 8;
-        } else {
-            return pos.getRow() == 1;
-        }
     }
 
     public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition, int[][] direction_vectors, int max_steps) {
@@ -152,16 +146,15 @@ public class ChessPiece {
         }
 
         PieceType[] promotion_options = {null};
-        if (shouldPromote(single_advance)) {
+        if (single_advance.getRow() == pawn_start_row + 6 * team_direction) {
             promotion_options = new PieceType[]{PieceType.QUEEN, PieceType.BISHOP, PieceType.ROOK, PieceType.KNIGHT};
         }
 
         for (ChessPosition target_position : validPosition) {
-            for (PieceType piece : promotion_options) {
-                moves.add(new ChessMove(myPosition, target_position, piece));
+            for (PieceType option : promotion_options) {
+                moves.add(new ChessMove(myPosition, target_position, option));
             }
         }
-
         return moves;
     }
 
