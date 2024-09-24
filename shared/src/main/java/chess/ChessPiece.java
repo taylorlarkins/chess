@@ -100,7 +100,6 @@ public class ChessPiece {
 
     public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition, int[][] direction_vectors, int max_steps) {
         HashSet<ChessMove> moves = new HashSet<>();
-
         for (int[] direction_vector : direction_vectors) {
             for (int i = 1; i <= max_steps; i++) {
                 ChessPosition candidate = new ChessPosition(myPosition.getRow() + direction_vector[0] * i, myPosition.getColumn() + direction_vector[1] * i);
@@ -146,7 +145,7 @@ public class ChessPiece {
         }
 
         PieceType[] promotion_options = {null};
-        if (single_advance.getRow() == pawn_start_row + 6 * team_direction) {
+        if (myPosition.getRow() + team_direction == pawn_start_row + 6 * team_direction) {
             promotion_options = new PieceType[]{PieceType.QUEEN, PieceType.BISHOP, PieceType.ROOK, PieceType.KNIGHT};
         }
 
