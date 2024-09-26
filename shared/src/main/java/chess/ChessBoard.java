@@ -10,7 +10,7 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private ChessPiece[][] grid;
+    private final ChessPiece[][] grid;
 
     public ChessBoard() {
         grid = new ChessPiece[8][8];
@@ -35,6 +35,23 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return grid[position.getRow() - 1][position.getColumn() - 1];
+    }
+
+    public void movePiece(ChessPiece piece, ChessMove move) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        if (move.getPromotionPiece() != null) {
+            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
+        grid[start.getRow() - 1][start.getColumn() - 1] = null;
+        grid[end.getRow() - 1][end.getColumn() - 1] = piece;
+    }
+
+    public void unMovePiece(ChessPiece piece, ChessMove move, ChessPiece target) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        grid[start.getRow() - 1][start.getColumn() - 1] = piece;
+        grid[end.getRow() - 1][end.getColumn() - 1] = target;
     }
 
     /**
@@ -64,7 +81,7 @@ public class ChessBoard {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        for (int i = 8; i >= 1; i--) {
+        for (int i = 7; i >= 0; i--) {
             result.append("|");
             for (int j = 0; j < 8; j++) {
                 String piece = (grid[i][j] == null) ? " " : grid[i][j].toString();
