@@ -19,8 +19,8 @@ public class ChessGame {
         turn = TeamColor.WHITE;
         board = new ChessBoard();
         board.resetBoard();
-        white_king_loc = locateKing(TeamColor.WHITE);
-        black_king_loc = locateKing(TeamColor.BLACK);
+        white_king_loc = new ChessPosition(1, 5);
+        black_king_loc = new ChessPosition(8, 5);
     }
 
     /**
