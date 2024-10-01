@@ -77,9 +77,9 @@ public class ChessGame {
         Collection<ChessMove> legal_moves = validMoves(move.getStartPosition());
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if (legal_moves == null) {
-            throw new InvalidMoveException("No legal moves starting from this position!");
+            throw new InvalidMoveException(String.format("No valid moves starting from position %s.", move.getStartPosition()));
         } else if (turn != piece.getTeamColor()) {
-            throw new InvalidMoveException("It is not this player's turn to make a move!");
+            throw new InvalidMoveException(String.format("%s attempted to make a move but it is not their turn.", piece.getTeamColor()));
         } else if (!legal_moves.contains(move)) {
             throw new InvalidMoveException("Given move is invalid!");
         }
