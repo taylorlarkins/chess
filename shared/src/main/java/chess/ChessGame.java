@@ -12,11 +12,15 @@ import java.util.HashSet;
 public class ChessGame {
     private TeamColor turn;
     private ChessBoard board;
+    private ChessPosition white_king_loc;
+    private ChessPosition black_king_loc;
 
     public ChessGame() {
         turn = TeamColor.WHITE;
         board = new ChessBoard();
         board.resetBoard();
+        white_king_loc = locateKing(TeamColor.WHITE);
+        black_king_loc = locateKing(TeamColor.BLACK);
     }
 
     /**
@@ -59,8 +63,14 @@ public class ChessGame {
         for (ChessMove move : moves) {
             ChessPiece piece_at_target = board.getPiece(move.getEndPosition());
             board.movePiece(piece, move);
+            if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                updateKingLocation(piece.getTeamColor(), move.getEndPosition());
+            }
             if (!isInCheck(teamColor)) {
                 legal_moves.add(move);
+            }
+            if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+                updateKingLocation(piece.getTeamColor(), move.getStartPosition());
             }
             board.unMovePiece(piece, move, piece_at_target);
         }
@@ -84,6 +94,9 @@ public class ChessGame {
             throw new InvalidMoveException("Given move is invalid!");
         }
         board.movePiece(piece, move);
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            updateKingLocation(turn, move.getEndPosition());
+        }
         turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
@@ -100,6 +113,14 @@ public class ChessGame {
         return null;
     }
 
+    public void updateKingLocation(TeamColor teamColor, ChessPosition pos) {
+        if (teamColor == TeamColor.WHITE) {
+            white_king_loc = pos;
+        } else {
+            black_king_loc = pos;
+        }
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -107,7 +128,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition king_location = locateKing(teamColor);
+        ChessPosition king_location = (teamColor == TeamColor.WHITE) ? white_king_loc : black_king_loc;
         if (king_location == null) return false;
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
@@ -169,6 +190,8 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
+        white_king_loc = locateKing(TeamColor.WHITE);
+        black_king_loc = locateKing(TeamColor.BLACK);
     }
 
     /**
