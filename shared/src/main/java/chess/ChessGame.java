@@ -76,12 +76,15 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> legal_moves = validMoves(move.getStartPosition());
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        if (legal_moves == null || turn != piece.getTeamColor() || !legal_moves.contains(move)) {
-            throw new InvalidMoveException();
-        } else {
-            board.movePiece(piece, move);
-            turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        if (legal_moves == null) {
+            throw new InvalidMoveException("No legal moves starting from this position!");
+        } else if (turn != piece.getTeamColor()) {
+            throw new InvalidMoveException("It is not this player's turn to make a move!");
+        } else if (!legal_moves.contains(move)) {
+            throw new InvalidMoveException("Given move is invalid!");
         }
+        board.movePiece(piece, move);
+        turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     public ChessPosition locateKing(TeamColor teamColor) {
