@@ -97,7 +97,7 @@ public class ChessGame {
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             updateKingLocation(turn, move.getEndPosition());
         }
-        turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        setTeamTurn((turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
     public ChessPosition locateKing(TeamColor teamColor) {
