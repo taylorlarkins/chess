@@ -12,7 +12,9 @@ public class MemoryDAO implements DataAccessObject {
     private HashMap<Integer, GameData> gameDataTable = new HashMap<>();
 
     public void clear() {
-
+        userDataTable.clear();
+        authDataTable.clear();
+        gameDataTable.clear();
     }
 
     public UserData createUser(UserData user) {
@@ -48,8 +50,6 @@ public class MemoryDAO implements DataAccessObject {
     }
 
     public void deleteAuth(AuthData auth) {
-        userDataTable.clear();
-        authDataTable.clear();
-        gameDataTable.clear();
+
     }
 }
