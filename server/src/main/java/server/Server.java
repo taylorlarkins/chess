@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import spark.*;
 
 public class Server {
+    private final Gson serializer = new Gson();
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -18,6 +19,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
+
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
@@ -31,7 +33,7 @@ public class Server {
     }
 
     private String deleteData(Request req, Response res) {
-        return new Gson().toJson("DELETE /db not implemented");
+        return null;
     }
 
     private String registerUser(Request req, Response res) {
