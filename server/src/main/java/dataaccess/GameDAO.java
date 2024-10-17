@@ -12,4 +12,6 @@ public interface GameDAO {
     GameData[] listGames() throws DataAccessException;
 
     GameData updateGame() throws DataAccessException;
+
+    int getSize();
 }

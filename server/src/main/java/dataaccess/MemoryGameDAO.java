@@ -40,4 +40,11 @@ public class MemoryGameDAO implements GameDAO {
     public GameData updateGame() throws DataAccessException {
         return null;
     }
+
+    @Override
+    public int getSize() {
+        return gameDataTable.size();
+    }
+
+
 }

@@ -2,7 +2,6 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
-import model.UserData;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -44,7 +43,9 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private String deleteData(Request req, Response res) {
+    private String deleteData(Request req, Response res) throws DataAccessException {
+        clearService.clear();
+        res.status(204);
         return "";
     }
 

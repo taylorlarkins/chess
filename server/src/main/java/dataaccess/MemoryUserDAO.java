@@ -21,4 +21,9 @@ public class MemoryUserDAO implements UserDAO {
     public UserData getUser(UserData user) throws DataAccessException {
         return userDataTable.get(user.username());
     }
+
+    @Override
+    public int getSize() {
+        return userDataTable.size();
+    }
 }
