@@ -1,25 +1,30 @@
 package service;
 
-import dataaccess.DataAccessObject;
-import model.AuthData;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
 import model.GameData;
 
 public class GameService {
-    DataAccessObject dataAccess;
+    private GameDAO gameDAO;
+    private UserDAO userDAO;
+    private AuthDAO authDAO;
 
-    public GameService(DataAccessObject dataAccess) {
-        this.dataAccess = dataAccess;
+    public GameService(GameDAO gameDAO, UserDAO userDAO, AuthDAO authDAO) {
+        this.gameDAO = gameDAO;
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
 
-    public GameData[] listGames(AuthData auth) {
+    public GameData[] listGame() {
         return null;
     }
 
-    public GameData createGame(AuthData auth) {
-        return null;
+    public void createGame() {
+
     }
 
-    public void joinGame(AuthData auth) {
+    public void joinGame() {
 
     }
 }

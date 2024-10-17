@@ -1,8 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessObject;
-import dataaccess.MemoryDAO;
+import dataaccess.*;
+import model.UserData;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -10,16 +10,13 @@ import spark.*;
 
 public class Server {
     private final Gson serializer = new Gson();
-    private final DataAccessObject dataAccess = new MemoryDAO();
-    private final UserService userService;
-    private final GameService gameService;
-    private final ClearService clearService;
+    private final UserDAO userDAO = new MemoryUserDAO();
+    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final GameDAO gameDAO = new MemoryGameDAO();
+    private final UserService userService = new UserService(userDAO, authDAO);
+    private final GameService gameService = new GameService(gameDAO, userDAO, authDAO);
+    private final ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
 
-    public Server() {
-        userService = new UserService(dataAccess);
-        gameService = new GameService(dataAccess);
-        clearService = new ClearService(dataAccess);
-    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -48,8 +45,6 @@ public class Server {
     }
 
     private String deleteData(Request req, Response res) {
-        clearService.clear();
-        res.status(204);
         return "";
     }
 
