@@ -51,7 +51,7 @@ public class Server {
 
     private String deleteData(Request req, Response res) throws DataAccessException {
         clearService.clear();
-        res.status(204);
+        res.status(200);
         return "";
     }
 
