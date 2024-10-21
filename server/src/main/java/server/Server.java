@@ -2,10 +2,16 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import model.AuthData;
+import model.UserData;
 import service.ClearService;
 import service.GameService;
+import service.ServiceException;
 import service.UserService;
 import spark.*;
+
+import javax.xml.crypto.Data;
+import java.rmi.ServerException;
 
 public class Server {
     private final Gson serializer = new Gson();
@@ -49,8 +55,15 @@ public class Server {
         return "";
     }
 
-    private String registerUser(Request req, Response res) {
-        return new Gson().toJson("POST /user not implemented");
+    private String registerUser(Request req, Response res) throws Exception {
+        UserData user = serializer.fromJson(req.body(), UserData.class);
+        try {
+            AuthData auth = userService.register(user);
+            return serializer.toJson(auth);
+        } catch (ServiceException e) {
+            res.status(e.getStatusCode());
+            return serializer.toJson(new ExceptionMessage(e.getMessage()));
+        }
     }
 
     private String login(Request req, Response res) {
