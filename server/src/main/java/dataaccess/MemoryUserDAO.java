@@ -18,8 +18,8 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(UserData user) throws DataAccessException {
-        return userDataTable.get(user.username());
+    public UserData getUser(String username) throws DataAccessException {
+        return userDataTable.get(username);
     }
 
     @Override

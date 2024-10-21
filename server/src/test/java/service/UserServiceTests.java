@@ -1,10 +1,12 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import server.LoginRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,7 +28,7 @@ public class UserServiceTests {
     public void registerUser() throws Exception {
         UserData user = new UserData("user123", "abc", "a@b.c");
         userService.register(user);
-        assertEquals(userDAO.getUser(user), user);
+        assertEquals(userDAO.getUser(user.username()), user);
     }
 
     @Test
@@ -51,5 +53,35 @@ public class UserServiceTests {
             Exception e = assertThrows(ServiceException.class, () -> userService.register(user));
             assertEquals(e.getMessage(), "Error: bad request");
         }
+    }
+
+    @Test
+    @DisplayName("Login")
+    public void login() throws Exception {
+        UserData user = new UserData("user123", "123", "a@b.c");
+        userService.register(user);
+        AuthData auth = userService.login(new LoginRequest(user.username(), user.password()));
+        assertEquals(user.username(), auth.username());
+        assertEquals(user.username(), authDAO.getAuth(auth.authToken()).username());
+    }
+
+    @Test
+    @DisplayName("Incorrect Password")
+    public void loginWithWrongPassword() throws Exception {
+        UserData user = new UserData("user123", "123", "a@b.c");
+        userService.register(user);
+        Exception e = assertThrows(ServiceException.class, () ->
+                userService.login(new LoginRequest(user.username(), "456"))
+        );
+        assertEquals(e.getMessage(), "Error: unauthorized");
+    }
+
+    @Test
+    @DisplayName("Invalid User")
+    public void loginInvalidUser() {
+        Exception e = assertThrows(ServiceException.class, () ->
+                userService.login(new LoginRequest("nonExistent", "blah"))
+        );
+        assertEquals(e.getMessage(), "Error: unauthorized");
     }
 }

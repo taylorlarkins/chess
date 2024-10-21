@@ -66,8 +66,15 @@ public class Server {
         }
     }
 
-    private String login(Request req, Response res) {
-        return new Gson().toJson("POST /session not implemented");
+    private String login(Request req, Response res) throws Exception {
+        LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
+        try {
+            AuthData auth = userService.login(loginRequest);
+            return serializer.toJson(auth);
+        } catch (ServiceException e) {
+            res.status(e.getStatusCode());
+            return serializer.toJson(new ExceptionMessage(e.getMessage()));
+        }
     }
 
     private String logout(Request req, Response res) {
