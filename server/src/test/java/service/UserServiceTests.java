@@ -11,31 +11,31 @@ import server.request.LoginRequest;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
-    private static final UserDAO userDAO = new MemoryUserDAO();
-    private static final AuthDAO authDAO = new MemoryAuthDAO();
-    private static final GameDAO gameDAO = new MemoryGameDAO();
-    private static final ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
-    private static final UserService userService = new UserService(userDAO, authDAO);
+    private static final UserDAO USER_DAO = new MemoryUserDAO();
+    private static final AuthDAO AUTH_DAO = new MemoryAuthDAO();
+    private static final GameDAO GAME_DAO = new MemoryGameDAO();
+    private static final ClearService CLEAR_SERVICE = new ClearService(GAME_DAO, USER_DAO, AUTH_DAO);
+    private static final UserService USER_SERVICE = new UserService(USER_DAO, AUTH_DAO);
 
     @AfterEach
     public void cleanUp() throws Exception {
-        clearService.clear();
+        CLEAR_SERVICE.clear();
     }
 
     @Test
     @DisplayName("Register User")
     public void registerUser() throws Exception {
         UserData user = new UserData("user123", "abc", "a@b.c");
-        userService.register(user);
-        assertEquals(user, userDAO.getUser(user.username()));
+        USER_SERVICE.register(user);
+        assertEquals(user, USER_DAO.getUser(user.username()));
     }
 
     @Test
     @DisplayName("Register Duplicate Username")
     public void registerDuplicate() throws Exception {
         UserData user = new UserData("user123", "abc", "a@b.c");
-        userService.register(user);
-        ServiceException e = assertThrows(ServiceException.class, () -> userService.register(user));
+        USER_SERVICE.register(user);
+        ServiceException e = assertThrows(ServiceException.class, () -> USER_SERVICE.register(user));
         assertEquals("Error: already taken", e.getMessage());
     }
 
@@ -49,7 +49,7 @@ public class UserServiceTests {
                 new UserData(null, null, null)
         };
         for (UserData user : users) {
-            ServiceException e = assertThrows(ServiceException.class, () -> userService.register(user));
+            ServiceException e = assertThrows(ServiceException.class, () -> USER_SERVICE.register(user));
             assertEquals("Error: bad request", e.getMessage());
         }
     }
@@ -58,19 +58,19 @@ public class UserServiceTests {
     @DisplayName("Login")
     public void login() throws Exception {
         UserData user = new UserData("user123", "123", "a@b.c");
-        userService.register(user);
-        AuthData auth = userService.login(new LoginRequest(user.username(), user.password()));
+        USER_SERVICE.register(user);
+        AuthData auth = USER_SERVICE.login(new LoginRequest(user.username(), user.password()));
         assertEquals(user.username(), auth.username());
-        assertEquals(user.username(), authDAO.getAuth(auth.authToken()).username());
+        assertEquals(user.username(), AUTH_DAO.getAuth(auth.authToken()).username());
     }
 
     @Test
     @DisplayName("Incorrect Password")
     public void loginWithWrongPassword() throws Exception {
         UserData user = new UserData("user123", "123", "a@b.c");
-        userService.register(user);
+        USER_SERVICE.register(user);
         ServiceException e = assertThrows(ServiceException.class, () ->
-                userService.login(new LoginRequest(user.username(), "456"))
+                USER_SERVICE.login(new LoginRequest(user.username(), "456"))
         );
         assertEquals("Error: unauthorized", e.getMessage());
     }
@@ -79,7 +79,7 @@ public class UserServiceTests {
     @DisplayName("Invalid User")
     public void loginInvalidUser() {
         ServiceException e = assertThrows(ServiceException.class, () ->
-                userService.login(new LoginRequest("nonExistent", "blah"))
+                USER_SERVICE.login(new LoginRequest("nonExistent", "blah"))
         );
         assertEquals("Error: unauthorized", e.getMessage());
     }
@@ -88,18 +88,18 @@ public class UserServiceTests {
     @DisplayName("Logout")
     public void logout() throws Exception {
         UserData user = new UserData("user123", "123", "a@b.c");
-        AuthData auth = userService.register(user);
-        userService.logout(auth.authToken());
-        assertNull(authDAO.getAuth(auth.authToken()));
+        AuthData auth = USER_SERVICE.register(user);
+        USER_SERVICE.logout(auth.authToken());
+        assertNull(AUTH_DAO.getAuth(auth.authToken()));
     }
 
     @Test
     @DisplayName("Logout Invalid Authorization")
     public void logoutInvalidAuthorization() throws Exception {
         UserData user = new UserData("user123", "123", "a@b.c");
-        userService.register(user);
+        USER_SERVICE.register(user);
         ServiceException e = assertThrows(ServiceException.class, () ->
-                userService.logout("notAnAuthToken")
+                USER_SERVICE.logout("notAnAuthToken")
         );
         assertEquals("Error: unauthorized", e.getMessage());
     }
