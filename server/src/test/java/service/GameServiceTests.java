@@ -13,12 +13,11 @@ public class GameServiceTests {
     private static final UserDAO userDAO = new MemoryUserDAO();
     private static final AuthDAO authDAO = new MemoryAuthDAO();
     private static final GameDAO gameDAO = new MemoryGameDAO();
-    private static final ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
     private static final UserService userService = new UserService(userDAO, authDAO);
-    private static final GameService gameService = new GameService(gameDAO, userDAO, authDAO);
+    private static final GameService gameService = new GameService(gameDAO, authDAO);
 
-    private static UserData user1 = new UserData("Bob", "abc", "a@b.c");
-    private static UserData user2 = new UserData("Sally", "efg", "e@f.g");
+    private static final UserData user1 = new UserData("Bob", "abc", "a@b.c");
+    private static final UserData user2 = new UserData("Sally", "efg", "e@f.g");
     private static AuthData user1Auth;
     private static AuthData user2Auth;
 

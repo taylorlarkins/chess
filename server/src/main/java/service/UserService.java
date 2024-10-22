@@ -7,8 +7,8 @@ import model.UserData;
 import server.LoginRequest;
 
 public class UserService {
-    private UserDAO userDAO;
-    private AuthDAO authDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
@@ -36,9 +36,13 @@ public class UserService {
 
     public void logout(String authToken) throws Exception {
         AuthData auth = authDAO.getAuth(authToken);
+        authenticate(auth);
+        authDAO.deleteAuth(authToken);
+    }
+
+    public static void authenticate(AuthData auth) throws Exception {
         if (auth == null) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        authDAO.deleteAuth(authToken);
     }
 }
