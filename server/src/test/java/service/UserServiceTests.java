@@ -6,7 +6,7 @@ import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.LoginRequest;
+import server.request.LoginRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 

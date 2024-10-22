@@ -5,8 +5,8 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import server.CreateGameResponse;
-import server.JoinGameRequest;
+import server.response.CreateGameResponse;
+import server.request.JoinGameRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -4,7 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
-import server.LoginRequest;
+import server.request.LoginRequest;
 
 public class UserService {
     private final UserDAO userDAO;
