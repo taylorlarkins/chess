@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO {
     private int nextId = 1;
-    private HashMap<Integer, GameData> gameDataTable = new HashMap<>();
+    private final HashMap<Integer, GameData> gameDataTable = new HashMap<>();
 
     @Override
     public void clear() throws DataAccessException {
@@ -15,19 +15,19 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public int createGame(String name) throws DataAccessException {
+    public int createGame(String name) {
         GameData game = new GameData(nextId++, null, null, name, new ChessGame());
         gameDataTable.put(game.gameID(), game);
         return game.gameID();
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) {
         return gameDataTable.get(gameID);
     }
 
     @Override
-    public GameData[] listGames() throws DataAccessException {
+    public GameData[] listGames() {
         GameData[] gameList = new GameData[gameDataTable.size()];
         int i = 0;
         for (GameData game : gameDataTable.values()) {
@@ -37,7 +37,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(GameData updatedGame) throws DataAccessException {
+    public void updateGame(GameData updatedGame) {
         gameDataTable.put(updatedGame.gameID(), updatedGame);
     }
 
@@ -45,6 +45,4 @@ public class MemoryGameDAO implements GameDAO {
     public int getSize() {
         return gameDataTable.size();
     }
-
-
 }

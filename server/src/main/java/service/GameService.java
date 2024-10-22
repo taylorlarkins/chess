@@ -19,7 +19,7 @@ public class GameService {
 
     public ListGamesResponse listGames(String authToken) throws Exception {
         AuthData auth = authDAO.getAuth(authToken);
-        UserService.authenticate(auth); //do this elsewhere
+        UserService.authenticate(auth);
         return new ListGamesResponse(gameDAO.listGames());
     }
 

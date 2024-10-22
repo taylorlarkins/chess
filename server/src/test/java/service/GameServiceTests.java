@@ -5,6 +5,8 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import server.CreateGameResponse;
+import server.JoinGameRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,7 +38,7 @@ public class GameServiceTests {
     @DisplayName("Create Game")
     public void createGame() throws Exception {
         int gameID = gameService.createGame("Game #1", user1Auth.authToken()).gameID();
-        assertEquals(gameDAO.getGame(gameID).gameName(), "Game #1");
+        assertEquals("Game #1", gameDAO.getGame(gameID).gameName());
     }
 
     @Test
@@ -45,7 +47,7 @@ public class GameServiceTests {
         ServiceException e = assertThrows(ServiceException.class, () ->
                 gameService.createGame("UnauthorizedGame", "NotARealAuthToken")
         );
-        assertEquals(e.getMessage(), "Error: unauthorized");
+        assertEquals("Error: unauthorized", e.getMessage());
     }
 
     @Test
@@ -56,7 +58,7 @@ public class GameServiceTests {
         gameService.createGame("Game #3", user1Auth.authToken());
         GameData[] gameList = gameService.listGames(user2Auth.authToken()).games();
         for (GameData game : gameList) {
-            assertEquals(game, gameDAO.getGame(game.gameID()));
+            assertEquals(gameDAO.getGame(game.gameID()), game);
         }
     }
 
@@ -64,7 +66,7 @@ public class GameServiceTests {
     @DisplayName("List Games with No Games")
     public void listGamesNoGames() throws Exception {
         GameData[] gameList = gameService.listGames(user2Auth.authToken()).games();
-        assertEquals(gameList.length, 0);
+        assertEquals(0, gameList.length);
     }
 
     @Test
@@ -75,6 +77,52 @@ public class GameServiceTests {
         ServiceException e = assertThrows(ServiceException.class, () ->
                 gameService.listGames("FakeAuthToken")
         );
-        assertEquals(e.getMessage(), "Error: unauthorized");
+        assertEquals("Error: unauthorized", e.getMessage());
+    }
+
+    @Test
+    @DisplayName("Join Game")
+    public void joinGame() throws Exception {
+        CreateGameResponse response = gameService.createGame("Game #1", user1Auth.authToken());
+        gameService.joinGame(new JoinGameRequest("WHITE", response.gameID()), user1Auth.authToken());
+        gameService.joinGame(new JoinGameRequest("BLACK", response.gameID()), user2Auth.authToken());
+        GameData game = gameDAO.getGame(response.gameID());
+        assertEquals(user1.username(), game.whiteUsername());
+        assertEquals(user2.username(), game.blackUsername());
+    }
+
+    @Test
+    @DisplayName("Join White Already Taken")
+    public void joinWhiteAlreadyTaken() throws Exception {
+        CreateGameResponse response = gameService.createGame("Game #1", user1Auth.authToken());
+        gameService.joinGame(new JoinGameRequest("WHITE", response.gameID()), user1Auth.authToken());
+        ServiceException e = assertThrows(ServiceException.class, () ->
+                gameService.joinGame(new JoinGameRequest("WHITE", response.gameID()), user2Auth.authToken())
+        );
+        assertEquals("Error: already taken", e.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("Join Black Already Taken")
+    public void joinBlackAlreadyTaken() throws Exception {
+        CreateGameResponse response = gameService.createGame("Game #1", user1Auth.authToken());
+        gameService.joinGame(new JoinGameRequest("BLACK", response.gameID()), user1Auth.authToken());
+        ServiceException e = assertThrows(ServiceException.class, () ->
+                gameService.joinGame(new JoinGameRequest("BLACK", response.gameID()), user2Auth.authToken())
+        );
+        assertEquals("Error: already taken", e.getMessage());
+    }
+
+    @Test
+    @DisplayName("Join Game Unauthorized")
+    public void joinGameUnauthorized() throws Exception {
+        CreateGameResponse response = gameService.createGame("Game #1", user1Auth.authToken());
+        ServiceException e = assertThrows(ServiceException.class, () ->
+                gameService.joinGame(
+                        new JoinGameRequest("WHITE", response.gameID()), "InvalidAuthorization"
+                )
+        );
+        assertEquals("Error: unauthorized", e.getMessage());
     }
 }
