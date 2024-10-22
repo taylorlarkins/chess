@@ -108,6 +108,13 @@ public class Server {
     }
 
     private String joinGame(Request req, Response res) throws Exception {
-        return new Gson().toJson("PUT /game not implemented");
+        String authToken = req.headers("authorization");
+        JoinGameRequest joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
+        try {
+            gameService.joinGame(joinGameRequest, authToken);
+            return "";
+        } catch (ServiceException e) {
+            return serviceExceptionHandler(e, res);
+        }
     }
 }
