@@ -41,7 +41,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Register Invalid User")
-    public void registerInvalid() throws Exception {
+    public void registerInvalid() {
         UserData[] users = {
                 new UserData(null, "abc", "a@b.c"),
                 new UserData("user123", null, "a@b.c"),

@@ -63,8 +63,7 @@ public class Server {
     private String registerUser(Request req, Response res) throws Exception {
         UserData user = serializer.fromJson(req.body(), UserData.class);
         try {
-            AuthData auth = userService.register(user);
-            return serializer.toJson(auth);
+            return serializer.toJson(userService.register(user));
         } catch (ServiceException e) {
             return serviceExceptionHandler(e, res);
         }
@@ -73,8 +72,7 @@ public class Server {
     private String login(Request req, Response res) throws Exception {
         LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
         try {
-            AuthData auth = userService.login(loginRequest);
-            return serializer.toJson(auth);
+            return serializer.toJson(userService.login(loginRequest));
         } catch (ServiceException e) {
             return serviceExceptionHandler(e, res);
         }
@@ -90,15 +88,26 @@ public class Server {
         }
     }
 
-    private String listGames(Request req, Response res) {
-        return new Gson().toJson("GET /game not implemented");
+    private String listGames(Request req, Response res) throws Exception {
+        String authToken = req.headers("authorization");
+        try {
+            return serializer.toJson(gameService.listGames(authToken));
+        } catch (ServiceException e) {
+            return serviceExceptionHandler(e, res);
+        }
     }
 
-    private String createGame(Request req, Response res) {
-        return new Gson().toJson("POST /game not implemented");
+    private String createGame(Request req, Response res) throws Exception {
+        String authToken = req.headers("authorization");
+        String gameName = serializer.fromJson(req.body(), CreateGameRequest.class).gameName();
+        try {
+            return serializer.toJson(gameService.createGame(gameName, authToken));
+        } catch (ServiceException e) {
+            return serviceExceptionHandler(e, res);
+        }
     }
 
-    private String joinGame(Request req, Response res) {
+    private String joinGame(Request req, Response res) throws Exception {
         return new Gson().toJson("PUT /game not implemented");
     }
 }

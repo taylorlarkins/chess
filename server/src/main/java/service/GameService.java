@@ -3,7 +3,9 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import model.GameData;
+import model.AuthData;
+import server.CreateGameResponse;
+import server.ListGamesResponse;
 
 public class GameService {
     private GameDAO gameDAO;
@@ -16,12 +18,20 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public GameData[] listGame() {
-        return null;
+    public ListGamesResponse listGames(String authToken) throws Exception {
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
+        return new ListGamesResponse(gameDAO.listGames());
     }
 
-    public void createGame() {
-
+    public CreateGameResponse createGame(String gameName, String authToken) throws Exception {
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
+        return new CreateGameResponse(gameDAO.createGame(gameName));
     }
 
     public void joinGame() {
