@@ -49,6 +49,11 @@ public class Server {
         Spark.awaitStop();
     }
 
+    private String serviceExceptionHandler(ServiceException e, Response res) {
+        res.status(e.getStatusCode());
+        return serializer.toJson(new ExceptionMessage(e.getMessage()));
+    }
+
     private String deleteData(Request req, Response res) throws DataAccessException {
         clearService.clear();
         res.status(200);
@@ -61,8 +66,7 @@ public class Server {
             AuthData auth = userService.register(user);
             return serializer.toJson(auth);
         } catch (ServiceException e) {
-            res.status(e.getStatusCode());
-            return serializer.toJson(new ExceptionMessage(e.getMessage()));
+            return serviceExceptionHandler(e, res);
         }
     }
 
@@ -72,13 +76,18 @@ public class Server {
             AuthData auth = userService.login(loginRequest);
             return serializer.toJson(auth);
         } catch (ServiceException e) {
-            res.status(e.getStatusCode());
-            return serializer.toJson(new ExceptionMessage(e.getMessage()));
+            return serviceExceptionHandler(e, res);
         }
     }
 
-    private String logout(Request req, Response res) {
-        return new Gson().toJson("DELETE /session not implemented");
+    private String logout(Request req, Response res) throws Exception {
+        String authToken = req.headers("authorization");
+        try {
+            userService.logout(authToken);
+            return "";
+        } catch (ServiceException e) {
+            return serviceExceptionHandler(e, res);
+        }
     }
 
     private String listGames(Request req, Response res) {

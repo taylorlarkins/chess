@@ -8,8 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import server.LoginRequest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
     private static final UserDAO userDAO = new MemoryUserDAO();
@@ -36,7 +35,7 @@ public class UserServiceTests {
     public void registerDuplicate() throws Exception {
         UserData user = new UserData("user123", "abc", "a@b.c");
         userService.register(user);
-        Exception e = assertThrows(ServiceException.class, () -> userService.register(user));
+        ServiceException e = assertThrows(ServiceException.class, () -> userService.register(user));
         assertEquals(e.getMessage(), "Error: already taken");
     }
 
@@ -50,7 +49,7 @@ public class UserServiceTests {
                 new UserData(null, null, null)
         };
         for (UserData user : users) {
-            Exception e = assertThrows(ServiceException.class, () -> userService.register(user));
+            ServiceException e = assertThrows(ServiceException.class, () -> userService.register(user));
             assertEquals(e.getMessage(), "Error: bad request");
         }
     }
@@ -70,7 +69,7 @@ public class UserServiceTests {
     public void loginWithWrongPassword() throws Exception {
         UserData user = new UserData("user123", "123", "a@b.c");
         userService.register(user);
-        Exception e = assertThrows(ServiceException.class, () ->
+        ServiceException e = assertThrows(ServiceException.class, () ->
                 userService.login(new LoginRequest(user.username(), "456"))
         );
         assertEquals(e.getMessage(), "Error: unauthorized");
@@ -79,8 +78,28 @@ public class UserServiceTests {
     @Test
     @DisplayName("Invalid User")
     public void loginInvalidUser() {
-        Exception e = assertThrows(ServiceException.class, () ->
+        ServiceException e = assertThrows(ServiceException.class, () ->
                 userService.login(new LoginRequest("nonExistent", "blah"))
+        );
+        assertEquals(e.getMessage(), "Error: unauthorized");
+    }
+
+    @Test
+    @DisplayName("Logout")
+    public void logout() throws Exception {
+        UserData user = new UserData("user123", "123", "a@b.c");
+        AuthData auth = userService.register(user);
+        userService.logout(auth.authToken());
+        assertNull(authDAO.getAuth(auth.authToken()));
+    }
+
+    @Test
+    @DisplayName("Logout Invalid Authorization")
+    public void logoutInvalidAuthorization() throws Exception {
+        UserData user = new UserData("user123", "123", "a@b.c");
+        userService.register(user);
+        ServiceException e = assertThrows(ServiceException.class, () ->
+                userService.logout("notAnAuthToken")
         );
         assertEquals(e.getMessage(), "Error: unauthorized");
     }
