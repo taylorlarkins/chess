@@ -9,30 +9,30 @@ import server.request.JoinGameRequest;
 import server.response.ListGamesResponse;
 
 public class GameService {
-    private final GameDAO gameDAO;
-    private final AuthDAO authDAO;
+    private final GameDAO gameDataAccess;
+    private final AuthDAO authDataAccess;
 
-    public GameService(GameDAO gameDAO, AuthDAO authDAO) {
-        this.gameDAO = gameDAO;
-        this.authDAO = authDAO;
+    public GameService(GameDAO gameDataAccess, AuthDAO authDataAccess) {
+        this.gameDataAccess = gameDataAccess;
+        this.authDataAccess = authDataAccess;
     }
 
     public ListGamesResponse listGames(String authToken) throws Exception {
-        AuthData auth = authDAO.getAuth(authToken);
+        AuthData auth = authDataAccess.getAuth(authToken);
         UserService.authenticate(auth);
-        return new ListGamesResponse(gameDAO.listGames());
+        return new ListGamesResponse(gameDataAccess.listGames());
     }
 
     public CreateGameResponse createGame(String gameName, String authToken) throws Exception {
-        AuthData auth = authDAO.getAuth(authToken);
+        AuthData auth = authDataAccess.getAuth(authToken);
         UserService.authenticate(auth);
-        return new CreateGameResponse(gameDAO.createGame(gameName));
+        return new CreateGameResponse(gameDataAccess.createGame(gameName));
     }
 
     public void joinGame(JoinGameRequest request, String authToken) throws Exception {
-        AuthData auth = authDAO.getAuth(authToken);
+        AuthData auth = authDataAccess.getAuth(authToken);
         UserService.authenticate(auth);
-        GameData game = gameDAO.getGame(request.gameID());
+        GameData game = gameDataAccess.getGame(request.gameID());
         String requestedColor = request.playerColor();
         if (game == null || requestedColor == null) {
             throw new ServiceException(400, "Error: bad request");
@@ -42,7 +42,7 @@ public class GameService {
             throw new ServiceException(403, "Error: already taken");
         }
         if (requestedColor.equals("WHITE")) {
-            gameDAO.updateGame(new GameData(
+            gameDataAccess.updateGame(new GameData(
                     game.gameID(),
                     auth.username(),
                     game.blackUsername(),
@@ -50,7 +50,7 @@ public class GameService {
                     game.game())
             );
         } else {
-            gameDAO.updateGame(new GameData(
+            gameDataAccess.updateGame(new GameData(
                     game.gameID(),
                     game.whiteUsername(),
                     auth.username(),

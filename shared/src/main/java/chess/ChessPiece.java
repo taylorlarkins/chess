@@ -76,13 +76,17 @@ public class ChessPiece {
     }
 
     public boolean isEnemyOwned(ChessBoard board, ChessPosition pos) {
-        if (outOfBounds(pos)) return false;
+        if (outOfBounds(pos)) {
+            return false;
+        }
         ChessPiece piece = board.getPiece(pos);
         return piece != null && piece.getTeamColor() != pieceColor;
     }
 
     public boolean isEmpty(ChessBoard board, ChessPosition pos) {
-        if (outOfBounds(pos)) return false;
+        if (outOfBounds(pos)) {
+            return false;
+        }
         return board.getPiece(pos) == null;
     }
 
@@ -93,7 +97,9 @@ public class ChessPiece {
     }
 
     public boolean isValidTarget(ChessBoard board, ChessPosition pos) {
-        if (outOfBounds(pos)) return false;
+        if (outOfBounds(pos)) {
+            return false;
+        }
         ChessPiece pieceAtTarget = board.getPiece(pos);
         return pieceAtTarget == null || pieceAtTarget.getTeamColor() != pieceColor;
     }
@@ -102,7 +108,10 @@ public class ChessPiece {
         HashSet<ChessMove> moves = new HashSet<>();
         for (int[] directionVector : directionVectors) {
             for (int i = 1; i <= maxSteps; i++) {
-                ChessPosition candidate = new ChessPosition(myPosition.getRow() + directionVector[0] * i, myPosition.getColumn() + directionVector[1] * i);
+                ChessPosition candidate = new ChessPosition(
+                        myPosition.getRow() + directionVector[0] * i,
+                        myPosition.getColumn() + directionVector[1] * i
+                );
                 if (isValidTarget(board, candidate)) {
                     moves.add(new ChessMove(myPosition, candidate, null));
                     if (isEnemyOwned(board, candidate)) {
@@ -173,8 +182,12 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ChessPiece that = (ChessPiece) o;
         return pieceColor == that.pieceColor && type == that.type;
     }

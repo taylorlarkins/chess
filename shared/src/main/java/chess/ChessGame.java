@@ -56,7 +56,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
-        if (piece == null) return null;
+        if (piece == null) {
+            return null;
+        }
         TeamColor teamColor = piece.getTeamColor();
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         HashSet<ChessMove> legalMoves = new HashSet<>();
@@ -129,12 +131,16 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingLocation = (teamColor == TeamColor.WHITE) ? whiteKingLoc : blackKingLoc;
-        if (kingLocation == null) return false;
+        if (kingLocation == null) {
+            return false;
+        }
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
-                if (piece == null || piece.getTeamColor() == teamColor) continue;
+                if (piece == null || piece.getTeamColor() == teamColor) {
+                    continue;
+                }
                 Collection<ChessMove> moves = piece.pieceMoves(board, position);
                 for (ChessMove move : moves) {
                     if (move.getEndPosition().equals(kingLocation)) {
@@ -152,7 +158,9 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
-                if (piece == null || piece.getTeamColor() != teamColor) continue;
+                if (piece == null || piece.getTeamColor() != teamColor) {
+                    continue;
+                }
                 Collection<ChessMove> validMoves = validMoves(position);
                 if (!validMoves.isEmpty()) {
                     return false;

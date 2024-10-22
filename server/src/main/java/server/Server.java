@@ -14,12 +14,12 @@ import spark.*;
 
 public class Server {
     private final Gson serializer = new Gson();
-    private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
-    private final GameDAO gameDAO = new MemoryGameDAO();
-    private final UserService userService = new UserService(userDAO, authDAO);
-    private final GameService gameService = new GameService(gameDAO, authDAO);
-    private final ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+    private final UserDAO userDataAccess = new MemoryUserDAO();
+    private final AuthDAO authDataAccess = new MemoryAuthDAO();
+    private final GameDAO gameDataAccess = new MemoryGameDAO();
+    private final UserService userService = new UserService(userDataAccess, authDataAccess);
+    private final GameService gameService = new GameService(gameDataAccess, authDataAccess);
+    private final ClearService clearService = new ClearService(gameDataAccess, userDataAccess, authDataAccess);
 
 
     public int run(int desiredPort) {
