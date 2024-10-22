@@ -27,7 +27,7 @@ public class UserServiceTests {
     public void registerUser() throws Exception {
         UserData user = new UserData("user123", "abc", "a@b.c");
         userService.register(user);
-        assertEquals(userDAO.getUser(user.username()), user);
+        assertEquals(user, userDAO.getUser(user.username()));
     }
 
     @Test
@@ -36,7 +36,7 @@ public class UserServiceTests {
         UserData user = new UserData("user123", "abc", "a@b.c");
         userService.register(user);
         ServiceException e = assertThrows(ServiceException.class, () -> userService.register(user));
-        assertEquals(e.getMessage(), "Error: already taken");
+        assertEquals("Error: already taken", e.getMessage());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class UserServiceTests {
         };
         for (UserData user : users) {
             ServiceException e = assertThrows(ServiceException.class, () -> userService.register(user));
-            assertEquals(e.getMessage(), "Error: bad request");
+            assertEquals("Error: bad request", e.getMessage());
         }
     }
 
@@ -72,7 +72,7 @@ public class UserServiceTests {
         ServiceException e = assertThrows(ServiceException.class, () ->
                 userService.login(new LoginRequest(user.username(), "456"))
         );
-        assertEquals(e.getMessage(), "Error: unauthorized");
+        assertEquals("Error: unauthorized", e.getMessage());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class UserServiceTests {
         ServiceException e = assertThrows(ServiceException.class, () ->
                 userService.login(new LoginRequest("nonExistent", "blah"))
         );
-        assertEquals(e.getMessage(), "Error: unauthorized");
+        assertEquals("Error: unauthorized", e.getMessage());
     }
 
     @Test
@@ -101,6 +101,6 @@ public class UserServiceTests {
         ServiceException e = assertThrows(ServiceException.class, () ->
                 userService.logout("notAnAuthToken")
         );
-        assertEquals(e.getMessage(), "Error: unauthorized");
+        assertEquals("Error: unauthorized", e.getMessage());
     }
 }
