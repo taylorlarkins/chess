@@ -58,7 +58,7 @@ public class ChessPiece {
             return getPawnMoves(board, myPosition);
         }
 
-        int[][] direction_vectors = switch (type) {
+        int[][] directionVectors = switch (type) {
             case KING -> new int[][]{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
             case QUEEN -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}};
             case BISHOP -> new int[][]{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
@@ -67,12 +67,12 @@ public class ChessPiece {
             default -> null;
         };
 
-        int max_steps = switch (type) {
+        int maxSteps = switch (type) {
             case QUEEN, ROOK, BISHOP -> 7;
             default -> 1;
         };
 
-        return calculateMoves(board, myPosition, direction_vectors, max_steps);
+        return calculateMoves(board, myPosition, directionVectors, maxSteps);
     }
 
     public boolean isEnemyOwned(ChessBoard board, ChessPosition pos) {
@@ -98,11 +98,11 @@ public class ChessPiece {
         return pieceAtTarget == null || pieceAtTarget.getTeamColor() != pieceColor;
     }
 
-    public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition, int[][] direction_vectors, int max_steps) {
+    public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition, int[][] directionVectors, int maxSteps) {
         HashSet<ChessMove> moves = new HashSet<>();
-        for (int[] direction_vector : direction_vectors) {
-            for (int i = 1; i <= max_steps; i++) {
-                ChessPosition candidate = new ChessPosition(myPosition.getRow() + direction_vector[0] * i, myPosition.getColumn() + direction_vector[1] * i);
+        for (int[] directionVector : directionVectors) {
+            for (int i = 1; i <= maxSteps; i++) {
+                ChessPosition candidate = new ChessPosition(myPosition.getRow() + directionVector[0] * i, myPosition.getColumn() + directionVector[1] * i);
                 if (isValidTarget(board, candidate)) {
                     moves.add(new ChessMove(myPosition, candidate, null));
                     if (isEnemyOwned(board, candidate)) {
@@ -118,40 +118,40 @@ public class ChessPiece {
 
     public HashSet<ChessMove> getPawnMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moves = new HashSet<>();
-        int team_direction = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
-        int pawn_start_row = (pieceColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
+        int teamDirection = (pieceColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
+        int pawnStartRow = (pieceColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
 
-        ChessPosition left_attack = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn() - 1);
-        ChessPosition right_attack = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn() + 1);
-        ChessPosition single_advance = new ChessPosition(myPosition.getRow() + team_direction, myPosition.getColumn());
-        ChessPosition double_advance = new ChessPosition(myPosition.getRow() + 2 * team_direction, myPosition.getColumn());
+        ChessPosition leftAttack = new ChessPosition(myPosition.getRow() + teamDirection, myPosition.getColumn() - 1);
+        ChessPosition rightAttack = new ChessPosition(myPosition.getRow() + teamDirection, myPosition.getColumn() + 1);
+        ChessPosition singleAdvance = new ChessPosition(myPosition.getRow() + teamDirection, myPosition.getColumn());
+        ChessPosition doubleAdvance = new ChessPosition(myPosition.getRow() + 2 * teamDirection, myPosition.getColumn());
 
         HashSet<ChessPosition> validPosition = new HashSet<>();
 
-        if (isEmpty(board, single_advance)) {
-            validPosition.add(single_advance);
+        if (isEmpty(board, singleAdvance)) {
+            validPosition.add(singleAdvance);
         }
 
-        if (myPosition.getRow() == pawn_start_row && isEmpty(board, single_advance) && isEmpty(board, double_advance)) {
-            validPosition.add(double_advance);
+        if (myPosition.getRow() == pawnStartRow && isEmpty(board, singleAdvance) && isEmpty(board, doubleAdvance)) {
+            validPosition.add(doubleAdvance);
         }
 
-        if (isEnemyOwned(board, left_attack)) {
-            validPosition.add(left_attack);
+        if (isEnemyOwned(board, leftAttack)) {
+            validPosition.add(leftAttack);
         }
 
-        if (isEnemyOwned(board, right_attack)) {
-            validPosition.add(right_attack);
+        if (isEnemyOwned(board, rightAttack)) {
+            validPosition.add(rightAttack);
         }
 
-        PieceType[] promotion_options = {null};
-        if (myPosition.getRow() + team_direction == pawn_start_row + 6 * team_direction) {
-            promotion_options = new PieceType[]{PieceType.QUEEN, PieceType.BISHOP, PieceType.ROOK, PieceType.KNIGHT};
+        PieceType[] promotionOptions = {null};
+        if (myPosition.getRow() + teamDirection == pawnStartRow + 6 * teamDirection) {
+            promotionOptions = new PieceType[]{PieceType.QUEEN, PieceType.BISHOP, PieceType.ROOK, PieceType.KNIGHT};
         }
 
-        for (ChessPosition target_position : validPosition) {
-            for (PieceType option : promotion_options) {
-                moves.add(new ChessMove(myPosition, target_position, option));
+        for (ChessPosition targetPosition : validPosition) {
+            for (PieceType option : promotionOptions) {
+                moves.add(new ChessMove(myPosition, targetPosition, option));
             }
         }
         return moves;
