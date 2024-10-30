@@ -1,7 +1,7 @@
 package service;
 
 public class ServiceException extends Exception {
-    private int statusCode;
+    private final int statusCode;
 
     public ServiceException(int statusCode, String message) {
         super(message);
