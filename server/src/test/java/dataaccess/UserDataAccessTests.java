@@ -41,7 +41,6 @@ public class UserDataAccessTests {
     @Test
     @DisplayName("Create Duplicate User")
     public void createDuplicateUser() throws DataAccessException {
-        userDAO.clear();
         userDAO.createUser(new UserData("user123", "1234", "a@b.c"));
         assertThrows(DataAccessException.class, () ->
                 userDAO.createUser(new UserData("user123", "duplicate", "bad"))

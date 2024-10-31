@@ -49,7 +49,7 @@ public class SQLDAO {
         }
     }
 
-    public int executeUpdate(String statement, Object... params) throws DataAccessException {
+    public String executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
@@ -67,10 +67,10 @@ public class SQLDAO {
 
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    return rs.getInt(1);
+                    return rs.getString(1);
                 }
 
-                return 0;
+                return "";
             }
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));

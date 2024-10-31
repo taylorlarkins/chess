@@ -1,11 +1,8 @@
 package dataaccess;
 
-import model.AuthData;
-import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,10 +22,19 @@ public class AuthDataAccessTests {
     @Test
     @DisplayName("Clear User Data")
     public void clearData() throws DataAccessException {
-        //authDAO.createUser(new UserData("user123", "1234", "a@b.c"));
-        //authDAO.createUser(new UserData("iAmAUser", "4321", "b@c.d"));
+        authDAO.createAuth("user123");
+        authDAO.createAuth("iAmAUser");
         assertEquals(2, authDAO.getSize());
         authDAO.clear();
         assertEquals(0, authDAO.getSize());
     }
+
+    @Test
+    @DisplayName("Create Authorization Token")
+    public void createAuthToken() throws DataAccessException {
+        assertDoesNotThrow(() -> authDAO.createAuth("user123"));
+        assertEquals(1, authDAO.getSize());
+    }
+
+    //negative createAuth test?
 }
