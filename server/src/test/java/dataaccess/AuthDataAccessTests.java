@@ -53,4 +53,14 @@ public class AuthDataAccessTests {
     public void getNonexistentAuth() throws DataAccessException {
         assertNull(authDAO.getAuth("nonExistentAuth"));
     }
+
+    @Test
+    @DisplayName("Delete Authorization")
+    public void deleteAuthorization() throws DataAccessException {
+        AuthData authData = authDAO.createAuth("user123");
+        assertDoesNotThrow(() -> authDAO.deleteAuth(authData.authToken()));
+        assertNull(authDAO.getAuth(authData.authToken()));
+    }
+
+    //negative deleteAuth test?
 }
