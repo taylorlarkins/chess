@@ -9,7 +9,8 @@ public class SQLAuthDAO extends SQLDAO implements AuthDAO {
 
     @Override
     public void clear() throws DataAccessException {
-
+        String statement = "TRUNCATE auth";
+        executeUpdate(statement);
     }
 
     @Override

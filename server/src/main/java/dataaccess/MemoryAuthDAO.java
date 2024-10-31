@@ -35,7 +35,7 @@ public class MemoryAuthDAO implements AuthDAO {
         return authDataTable.size();
     }
 
-    public static String generateToken() {
+    private String generateToken() {
         return UUID.randomUUID().toString();
     }
 }
