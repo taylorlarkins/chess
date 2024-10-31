@@ -75,7 +75,7 @@ public class GameDataAccessTests {
 
     @Test
     @DisplayName("List Games When There Are No Games")
-    public void listGamesNoGames() throws DataAccessException {
+    public void listGamesNoGames() {
         GameData[] games = assertDoesNotThrow(() -> gameDAO.listGames());
         assertEquals(0, games.length);
     }
@@ -103,5 +103,18 @@ public class GameDataAccessTests {
         assertEquals("user123", updatedGame.whiteUsername());
         assertEquals("iAmAUser", updatedGame.blackUsername());
         assertEquals(chessGame.getBoard(), updatedGame.game().getBoard());
+    }
+
+    @Test
+    @DisplayName("Update Nonexistent Game")
+    public void updateNonexistentGame() throws DataAccessException {
+        GameData fakeGame = new GameData(
+                0,
+                null,
+                null,
+                "Fake Game",
+                new ChessGame()
+        );
+        assertDoesNotThrow(() -> gameDAO.updateGame(fakeGame));
     }
 }
