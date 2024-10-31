@@ -14,13 +14,24 @@ import spark.*;
 
 public class Server {
     private final Gson serializer = new Gson();
-    private final UserDAO userDataAccess = new MemoryUserDAO();
-    private final AuthDAO authDataAccess = new MemoryAuthDAO();
-    private final GameDAO gameDataAccess = new MemoryGameDAO();
+    private UserDAO userDataAccess;
+    private AuthDAO authDataAccess;
+    private GameDAO gameDataAccess;
     private final UserService userService = new UserService(userDataAccess, authDataAccess);
     private final GameService gameService = new GameService(gameDataAccess, authDataAccess);
     private final ClearService clearService = new ClearService(gameDataAccess, userDataAccess, authDataAccess);
 
+    public Server() {
+        try {
+            userDataAccess = new SQLUserDAO();
+            authDataAccess = new SQLAuthDAO();
+            gameDataAccess = new SQLGameDAO();
+        } catch (DataAccessException ex) {
+            userDataAccess = new MemoryUserDAO();
+            authDataAccess = new MemoryAuthDAO();
+            gameDataAccess = new MemoryGameDAO();
+        }
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -53,7 +64,7 @@ public class Server {
     }
 
     private void dataAccessExceptionHandler(DataAccessException e, Request req, Response res) {
-        res.status(500);
+        res.status(0);
         res.body(serializer.toJson(new ExceptionMessage(e.getMessage())));
     }
 

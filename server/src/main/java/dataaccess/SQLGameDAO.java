@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class SQLGameDAO extends SQLDAO implements GameDAO {
@@ -27,6 +29,19 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game WHERE gameID=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 
@@ -51,5 +66,14 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
+    }
+
+    private GameData readGame(ResultSet rs) throws SQLException {
+        int gameID = rs.getInt("gameID");
+        String whiteUsername = rs.getString("whiteUsername");
+        String blackUsername = rs.getString("blackUsername");
+        String gameName = rs.getString("gameName");
+        ChessGame game = new Gson().fromJson(rs.getString("game"), ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
 }

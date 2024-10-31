@@ -1,5 +1,6 @@
 package dataaccess;
 
+import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,5 +28,23 @@ public class GameDataAccessTests {
         assertEquals(2, gameDAO.getSize());
         gameDAO.clear();
         assertEquals(0, gameDAO.getSize());
+    }
+
+    @Test
+    @DisplayName("Create Game")
+    public void createGame() throws DataAccessException {
+        assertDoesNotThrow(() -> gameDAO.createGame("Game #1"));
+        assertEquals(1, gameDAO.getSize());
+    }
+
+    //negative createGame test?
+
+    @Test
+    @DisplayName("Get Game")
+    public void getGame() throws DataAccessException {
+        int gameID = gameDAO.createGame("Game #1");
+        GameData game = assertDoesNotThrow(() -> gameDAO.getGame(gameID));
+        assertEquals(gameID, game.gameID());
+        assertEquals("Game #1", game.gameName());
     }
 }
