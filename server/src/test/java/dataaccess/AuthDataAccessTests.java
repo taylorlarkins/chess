@@ -1,5 +1,6 @@
 package dataaccess;
 
+import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,4 +38,19 @@ public class AuthDataAccessTests {
     }
 
     //negative createAuth test?
+
+    @Test
+    @DisplayName("Get Authorization")
+    public void getAuth() throws DataAccessException {
+        AuthData createAuth = authDAO.createAuth("user123");
+        AuthData getAuth = assertDoesNotThrow(() -> authDAO.getAuth(createAuth.authToken()));
+        assertEquals(createAuth.authToken(), getAuth.authToken());
+        assertEquals("user123", getAuth.username());
+    }
+
+    @Test
+    @DisplayName("Get Nonexistent Authorization")
+    public void getNonexistentAuth() throws DataAccessException {
+        assertNull(authDAO.getAuth("nonExistentAuth"));
+    }
 }

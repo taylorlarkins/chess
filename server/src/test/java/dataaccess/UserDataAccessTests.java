@@ -52,7 +52,7 @@ public class UserDataAccessTests {
     public void getUser() throws DataAccessException {
         userDAO.createUser(new UserData("user123", "1234", "a@b.c"));
         String hashedPassword = BCrypt.hashpw("1234", BCrypt.gensalt());
-        UserData user = userDAO.getUser("user123");
+        UserData user = assertDoesNotThrow(() -> userDAO.getUser("user123"));
         assertEquals("user123", user.username());
         assertTrue(BCrypt.checkpw("1234", hashedPassword));
         assertEquals("a@b.c", user.email());
