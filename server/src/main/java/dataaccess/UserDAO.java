@@ -9,5 +9,5 @@ public interface UserDAO {
 
     UserData getUser(String username) throws DataAccessException;
 
-    int getSize();
+    int getSize() throws DataAccessException;
 }

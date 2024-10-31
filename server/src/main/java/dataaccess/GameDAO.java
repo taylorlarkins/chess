@@ -13,5 +13,5 @@ public interface GameDAO {
 
     void updateGame(GameData updatedGame) throws DataAccessException;
 
-    int getSize();
+    int getSize() throws DataAccessException;
 }
