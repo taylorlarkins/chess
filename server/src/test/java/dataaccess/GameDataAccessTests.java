@@ -47,4 +47,10 @@ public class GameDataAccessTests {
         assertEquals(gameID, game.gameID());
         assertEquals("Game #1", game.gameName());
     }
+
+    @Test
+    @DisplayName("Get Nonexistent Game")
+    public void getNonexistentGame() throws DataAccessException {
+        assertNull(gameDAO.getGame(0));
+    }
 }
