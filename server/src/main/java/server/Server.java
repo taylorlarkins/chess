@@ -17,9 +17,9 @@ public class Server {
     private UserDAO userDataAccess;
     private AuthDAO authDataAccess;
     private GameDAO gameDataAccess;
-    private final UserService userService = new UserService(userDataAccess, authDataAccess);
-    private final GameService gameService = new GameService(gameDataAccess, authDataAccess);
-    private final ClearService clearService = new ClearService(gameDataAccess, userDataAccess, authDataAccess);
+    private UserService userService;
+    private GameService gameService;
+    private ClearService clearService;
 
     public Server() {
         try {
@@ -31,6 +31,9 @@ public class Server {
             authDataAccess = new MemoryAuthDAO();
             gameDataAccess = new MemoryGameDAO();
         }
+        userService = new UserService(userDataAccess, authDataAccess);
+        gameService = new GameService(gameDataAccess, authDataAccess);
+        clearService = new ClearService(gameDataAccess, userDataAccess, authDataAccess);
     }
 
     public int run(int desiredPort) {
