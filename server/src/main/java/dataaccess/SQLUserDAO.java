@@ -45,11 +45,10 @@ public class SQLUserDAO extends SQLDAO implements UserDAO {
     @Override
     public int getSize() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement("SELECT COUNT(*) FROM user;")) {
+            try (var ps = conn.prepareStatement("SELECT COUNT(*) FROM user")) {
                 var rs = ps.executeQuery();
                 rs.next();
                 return rs.getInt(1);
-
             }
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
