@@ -66,7 +66,15 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData updatedGame) throws DataAccessException {
-
+        String statement = "UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, game=? WHERE gameID=?";
+        executeUpdate(
+                statement,
+                updatedGame.whiteUsername(),
+                updatedGame.blackUsername(),
+                updatedGame.gameName(),
+                updatedGame.game(),
+                updatedGame.gameID()
+        );
     }
 
     @Override

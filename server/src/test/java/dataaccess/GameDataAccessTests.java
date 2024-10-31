@@ -1,5 +1,9 @@
 package dataaccess;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.GameData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,5 +78,30 @@ public class GameDataAccessTests {
     public void listGamesNoGames() throws DataAccessException {
         GameData[] games = assertDoesNotThrow(() -> gameDAO.listGames());
         assertEquals(0, games.length);
+    }
+
+    @Test
+    @DisplayName("Update Game")
+    public void updateGame() throws DataAccessException {
+        int gameID = gameDAO.createGame("Game #1");
+        ChessBoard customBoard = new ChessBoard();
+        customBoard.addPiece(
+                new ChessPosition(1, 1),
+                new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)
+        );
+        ChessGame chessGame = new ChessGame();
+        chessGame.setBoard(customBoard);
+        GameData modifiedGame = new GameData(
+                gameID,
+                "user123",
+                "iAmAUser",
+                "Renamed Game",
+                chessGame
+        );
+        assertDoesNotThrow(() -> gameDAO.updateGame(modifiedGame));
+        GameData updatedGame = gameDAO.getGame(gameID);
+        assertEquals("user123", updatedGame.whiteUsername());
+        assertEquals("iAmAUser", updatedGame.blackUsername());
+        assertEquals(chessGame.getBoard(), updatedGame.game().getBoard());
     }
 }
