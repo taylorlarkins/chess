@@ -2,13 +2,11 @@ package dataaccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import model.AuthData;
 import model.GameData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class SQLGameDAO extends SQLDAO implements GameDAO {
     public SQLGameDAO() throws DataAccessException {
@@ -48,7 +46,7 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public GameData[] listGames() throws DataAccessException {
-        ArrayList<GameData> result = new ArrayList<GameData>();
+        ArrayList<GameData> result = new ArrayList<>();
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM game";
             try (var ps = conn.prepareStatement(statement)) {

@@ -107,7 +107,7 @@ public class GameDataAccessTests {
 
     @Test
     @DisplayName("Update Nonexistent Game")
-    public void updateNonexistentGame() throws DataAccessException {
+    public void updateNonexistentGame() {
         GameData fakeGame = new GameData(
                 0,
                 null,
