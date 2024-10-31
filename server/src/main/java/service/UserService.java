@@ -21,7 +21,8 @@ public class UserService {
             throw new ServiceException(400, "Error: bad request");
         }
         if (userDataAccess.getUser(user.username()) == null) {
-            userDataAccess.createUser(user);
+            String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+            userDataAccess.createUser(new UserData(user.username(), hashedPassword, user.email()));
             return authDataAccess.createAuth(user.username());
         }
         throw new ServiceException(403, "Error: already taken");

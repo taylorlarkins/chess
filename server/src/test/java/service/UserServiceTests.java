@@ -6,6 +6,7 @@ import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import server.request.LoginRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,8 +27,12 @@ public class UserServiceTests {
     @DisplayName("Register User")
     public void registerUser() throws Exception {
         UserData user = new UserData("user123", "abc", "a@b.c");
+        String hashedPassword = BCrypt.hashpw("abc", BCrypt.gensalt());
         USER_SERVICE.register(user);
-        assertEquals(user, USER_DAO.getUser(user.username()));
+        UserData postRegistration = USER_DAO.getUser("user123");
+        assertEquals("user123", postRegistration.username());
+        assertTrue(BCrypt.checkpw("abc", hashedPassword));
+        assertEquals("a@b.c", postRegistration.email());
     }
 
     @Test
