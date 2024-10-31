@@ -45,7 +45,8 @@ public class UserDataAccessTests {
         userDAO.clear();
         userDAO.createUser(new UserData("user123", "1234", "a@b.c"));
         assertThrows(DataAccessException.class, () ->
-                userDAO.createUser(new UserData("user123", "duplicate", "bad")));
+                userDAO.createUser(new UserData("user123", "duplicate", "bad"))
+        );
     }
 
     @Test
@@ -57,5 +58,11 @@ public class UserDataAccessTests {
         assertEquals("user123", user.username());
         assertTrue(BCrypt.checkpw("1234", hashedPassword));
         assertEquals("a@b.c", user.email());
+    }
+
+    @Test
+    @DisplayName("Get Nonexistent User")
+    public void getNonexistentUser() throws DataAccessException {
+        assertNull(userDAO.getUser("nonExistentUser"));
     }
 }
