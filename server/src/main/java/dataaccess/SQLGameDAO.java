@@ -7,6 +7,7 @@ import model.GameData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class SQLGameDAO extends SQLDAO implements GameDAO {
@@ -47,7 +48,20 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public GameData[] listGames() throws DataAccessException {
-        return new GameData[0];
+        ArrayList<GameData> result = new ArrayList<GameData>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM game";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readGame(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result.toArray(new GameData[0]);
     }
 
     @Override

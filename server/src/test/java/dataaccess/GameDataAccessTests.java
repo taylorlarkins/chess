@@ -53,4 +53,26 @@ public class GameDataAccessTests {
     public void getNonexistentGame() throws DataAccessException {
         assertNull(gameDAO.getGame(0));
     }
+
+    @Test
+    @DisplayName("List Games")
+    public void listGames() throws DataAccessException {
+        int[] gameIDs = {
+                gameDAO.createGame("Game #1"),
+                gameDAO.createGame("Game #2"),
+                gameDAO.createGame("Game #3")
+        };
+        GameData[] games = assertDoesNotThrow(() -> gameDAO.listGames());
+        assertEquals(3, games.length);
+        for (int i = 0; i < 3; i++) {
+            assertEquals(gameIDs[i], games[i].gameID());
+        }
+    }
+
+    @Test
+    @DisplayName("List Games When There Are No Games")
+    public void listGamesNoGames() throws DataAccessException {
+        GameData[] games = assertDoesNotThrow(() -> gameDAO.listGames());
+        assertEquals(0, games.length);
+    }
 }
