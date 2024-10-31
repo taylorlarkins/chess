@@ -2,7 +2,11 @@ package dataaccess;
 
 import model.GameData;
 
-public class SQLGameDAO implements GameDAO {
+public class SQLGameDAO extends SQLDAO implements GameDAO {
+    public SQLGameDAO() throws DataAccessException {
+        configureDatabase();
+    }
+
     @Override
     public void clear() throws DataAccessException {
 

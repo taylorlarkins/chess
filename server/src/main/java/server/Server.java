@@ -35,7 +35,8 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        Spark.exception(ServiceException.class, this::exceptionHandler);
+        Spark.exception(ServiceException.class, this::serviceExceptionHandler);
+        Spark.exception(DataAccessException.class, this::dataAccessExceptionHandler);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -46,8 +47,13 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private void exceptionHandler(ServiceException e, Request req, Response res) {
+    private void serviceExceptionHandler(ServiceException e, Request req, Response res) {
         res.status(e.getStatusCode());
+        res.body(serializer.toJson(new ExceptionMessage(e.getMessage())));
+    }
+
+    private void dataAccessExceptionHandler(DataAccessException e, Request req, Response res) {
+        res.status(500);
         res.body(serializer.toJson(new ExceptionMessage(e.getMessage())));
     }
 
