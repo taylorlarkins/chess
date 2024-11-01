@@ -67,7 +67,7 @@ public class Server {
     }
 
     private void dataAccessExceptionHandler(DataAccessException e, Request req, Response res) {
-        res.status(0);
+        res.status(500);
         res.body(serializer.toJson(new ExceptionMessage(e.getMessage())));
     }
 
