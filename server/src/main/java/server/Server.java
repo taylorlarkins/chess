@@ -14,14 +14,14 @@ import spark.*;
 
 public class Server {
     private final Gson serializer = new Gson();
-    private UserDAO userDataAccess;
-    private AuthDAO authDataAccess;
-    private GameDAO gameDataAccess;
-    private UserService userService;
-    private GameService gameService;
-    private ClearService clearService;
+    private final UserService userService;
+    private final GameService gameService;
+    private final ClearService clearService;
 
     public Server() {
+        UserDAO userDataAccess;
+        GameDAO gameDataAccess;
+        AuthDAO authDataAccess;
         try {
             userDataAccess = new SQLUserDAO();
             authDataAccess = new SQLAuthDAO();
