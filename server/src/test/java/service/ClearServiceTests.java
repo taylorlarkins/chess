@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,9 +18,9 @@ public class ClearServiceTests {
     @DisplayName("Clear Data")
     public void clearData() throws DataAccessException {
         USER_DAO.createUser(new UserData("iAmAUser", "12345", "a@b.c"));
-        AUTH_DAO.createAuth("iAmAUser");
+        AUTH_DAO.addAuth(new AuthData("001", "iAmAUser"));
         USER_DAO.createUser(new UserData("anotherUser", "hello", "b@c.d"));
-        AUTH_DAO.createAuth("anotherUser");
+        AUTH_DAO.addAuth(new AuthData("002", "anotherUser"));
         GAME_DAO.createGame("Game1");
         GAME_DAO.createGame("Game2");
         assertEquals(2, USER_DAO.getSize());

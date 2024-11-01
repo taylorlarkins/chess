@@ -4,7 +4,6 @@ import model.AuthData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 
 public class SQLAuthDAO extends SQLDAO implements AuthDAO {
     public SQLAuthDAO() throws DataAccessException {
@@ -18,11 +17,9 @@ public class SQLAuthDAO extends SQLDAO implements AuthDAO {
     }
 
     @Override
-    public AuthData createAuth(String username) throws DataAccessException {
+    public void addAuth(AuthData authData) throws DataAccessException {
         String statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        String authToken = UUID.randomUUID().toString();
-        executeUpdate(statement, authToken, username);
-        return new AuthData(authToken, username);
+        executeUpdate(statement, authData.authToken(), authData.username());
     }
 
     @Override
