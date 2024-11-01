@@ -53,10 +53,14 @@ public class SQLUserDAO extends SQLDAO implements UserDAO {
         }
     }
 
-    private UserData readUser(ResultSet rs) throws SQLException {
-        String username = rs.getString("username");
-        String password = rs.getString("password");
-        String email = rs.getString("email");
-        return new UserData(username, password, email);
+    private UserData readUser(ResultSet rs) throws DataAccessException {
+        try {
+            String username = rs.getString("username");
+            String password = rs.getString("password");
+            String email = rs.getString("email");
+            return new UserData(username, password, email);
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 }

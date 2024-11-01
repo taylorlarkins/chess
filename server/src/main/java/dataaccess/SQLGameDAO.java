@@ -88,12 +88,16 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
         }
     }
 
-    private GameData readGame(ResultSet rs) throws SQLException {
-        int gameID = rs.getInt("gameID");
-        String whiteUsername = rs.getString("whiteUsername");
-        String blackUsername = rs.getString("blackUsername");
-        String gameName = rs.getString("gameName");
-        ChessGame game = new Gson().fromJson(rs.getString("game"), ChessGame.class);
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+    private GameData readGame(ResultSet rs) throws DataAccessException {
+        try {
+            int gameID = rs.getInt("gameID");
+            String whiteUsername = rs.getString("whiteUsername");
+            String blackUsername = rs.getString("blackUsername");
+            String gameName = rs.getString("gameName");
+            ChessGame game = new Gson().fromJson(rs.getString("game"), ChessGame.class);
+            return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 }

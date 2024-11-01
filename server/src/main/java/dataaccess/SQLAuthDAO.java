@@ -62,9 +62,13 @@ public class SQLAuthDAO extends SQLDAO implements AuthDAO {
         }
     }
 
-    private AuthData readAuth(ResultSet rs) throws SQLException {
-        String authToken = rs.getString("authToken");
-        String username = rs.getString("username");
-        return new AuthData(authToken, username);
+    private AuthData readAuth(ResultSet rs) throws DataAccessException {
+        try {
+            String authToken = rs.getString("authToken");
+            String username = rs.getString("username");
+            return new AuthData(authToken, username);
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 }
