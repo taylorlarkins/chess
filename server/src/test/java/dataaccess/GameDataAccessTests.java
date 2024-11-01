@@ -14,6 +14,27 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GameDataAccessTests {
     private static GameDAO gameDAO;
+    private static final GameData testGame1 = new GameData(
+            1,
+            null,
+            null,
+            "Game #1",
+            new ChessGame()
+    );
+    private static final GameData testGame2 = new GameData(
+            1,
+            "user123",
+            "iAmAUser",
+            "Game #2",
+            new ChessGame()
+    );
+    private static final GameData testGame3 = new GameData(
+            1,
+            "anotherUser",
+            null,
+            "Game #1",
+            new ChessGame()
+    );
 
     public GameDataAccessTests() throws DataAccessException {
         gameDAO = new SQLGameDAO();
@@ -27,8 +48,8 @@ public class GameDataAccessTests {
     @Test
     @DisplayName("Clear User Data")
     public void clearData() throws DataAccessException {
-        gameDAO.createGame("Game #1");
-        gameDAO.createGame("Game #2");
+        gameDAO.addGame(testGame1);
+        gameDAO.addGame(testGame2);
         assertEquals(2, gameDAO.getSize());
         gameDAO.clear();
         assertEquals(0, gameDAO.getSize());
@@ -37,16 +58,16 @@ public class GameDataAccessTests {
     @Test
     @DisplayName("Create Game")
     public void createGame() throws DataAccessException {
-        assertDoesNotThrow(() -> gameDAO.createGame("Game #1"));
+        assertDoesNotThrow(() -> gameDAO.addGame(testGame1));
         assertEquals(1, gameDAO.getSize());
     }
 
-    //negative createGame test?
+    //negative addGame test?
 
     @Test
     @DisplayName("Get Game")
     public void getGame() throws DataAccessException {
-        int gameID = gameDAO.createGame("Game #1");
+        int gameID = gameDAO.addGame(testGame1);
         GameData game = assertDoesNotThrow(() -> gameDAO.getGame(gameID));
         assertEquals(gameID, game.gameID());
         assertEquals("Game #1", game.gameName());
@@ -62,9 +83,9 @@ public class GameDataAccessTests {
     @DisplayName("List Games")
     public void listGames() throws DataAccessException {
         int[] gameIDs = {
-                gameDAO.createGame("Game #1"),
-                gameDAO.createGame("Game #2"),
-                gameDAO.createGame("Game #3")
+                gameDAO.addGame(testGame1),
+                gameDAO.addGame(testGame2),
+                gameDAO.addGame(testGame3)
         };
         GameData[] games = assertDoesNotThrow(() -> gameDAO.listGames());
         assertEquals(3, games.length);
@@ -83,7 +104,7 @@ public class GameDataAccessTests {
     @Test
     @DisplayName("Update Game")
     public void updateGame() throws DataAccessException {
-        int gameID = gameDAO.createGame("Game #1");
+        int gameID = gameDAO.addGame(testGame1);
         ChessBoard customBoard = new ChessBoard();
         customBoard.addPiece(
                 new ChessPosition(1, 1),

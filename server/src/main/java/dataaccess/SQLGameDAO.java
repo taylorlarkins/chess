@@ -20,10 +20,15 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
     }
 
     @Override
-    public int createGame(String name) throws DataAccessException {
+    public int addGame(GameData game) throws DataAccessException {
         String statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
-        String gameJSON = new Gson().toJson(new ChessGame());
-        return executeUpdate(statement, null, null, name, gameJSON);
+        String gameJSON = new Gson().toJson(game);
+        return executeUpdate(statement,
+                game.whiteUsername(),
+                game.blackUsername(),
+                game.gameName(),
+                gameJSON
+        );
     }
 
     @Override

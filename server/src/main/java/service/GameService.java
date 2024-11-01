@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import model.AuthData;
@@ -26,7 +27,8 @@ public class GameService {
     public CreateGameResponse createGame(String gameName, String authToken) throws Exception {
         AuthData auth = authDataAccess.getAuth(authToken);
         UserService.authenticate(auth);
-        return new CreateGameResponse(gameDataAccess.createGame(gameName));
+        GameData game = new GameData(0 /* place holder */, null, null, gameName, new ChessGame());
+        return new CreateGameResponse(gameDataAccess.addGame(game));
     }
 
     public void joinGame(JoinGameRequest request, String authToken) throws Exception {

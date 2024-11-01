@@ -1,7 +1,9 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,8 +23,22 @@ public class ClearServiceTests {
         AUTH_DAO.addAuth(new AuthData("001", "iAmAUser"));
         USER_DAO.createUser(new UserData("anotherUser", "hello", "b@c.d"));
         AUTH_DAO.addAuth(new AuthData("002", "anotherUser"));
-        GAME_DAO.createGame("Game1");
-        GAME_DAO.createGame("Game2");
+        GAME_DAO.addGame(new GameData(
+                        1,
+                        null,
+                        null,
+                        "Game #1",
+                        new ChessGame()
+                )
+        );
+        GAME_DAO.addGame(new GameData(
+                        2,
+                        "user123",
+                        "iAmAUser",
+                        "Game #2",
+                        new ChessGame()
+                )
+        );
         assertEquals(2, USER_DAO.getSize());
         assertEquals(2, AUTH_DAO.getSize());
         assertEquals(2, GAME_DAO.getSize());
