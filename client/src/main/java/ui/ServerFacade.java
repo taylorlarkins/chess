@@ -3,6 +3,7 @@ package ui;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
+import server.request.LoginRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,11 @@ public class ServerFacade {
     public AuthData register(UserData user) throws ClientException {
         String path = "/user";
         return makeRequest("POST", path, user, AuthData.class);
+    }
+
+    public AuthData login(LoginRequest req) throws ClientException {
+        String path = "/session";
+        return makeRequest("POST", path, req, AuthData.class);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ClientException {

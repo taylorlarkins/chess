@@ -2,6 +2,7 @@ package ui;
 
 import model.AuthData;
 import model.UserData;
+import server.request.LoginRequest;
 
 import java.util.Arrays;
 
@@ -47,7 +48,11 @@ public class ChessClient {
     }
 
     public String login(String... params) throws ClientException {
-        return "Not implemented";
+        if (params.length == 2) {
+            AuthData auth = server.login(new LoginRequest(params[0], params[1]));
+            return String.format("%s has been logged in!", auth.username());
+        }
+        throw new ClientException(400, "Expected: <username> <password>");
     }
 
     public String create(String... params) throws ClientException {

@@ -4,6 +4,7 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
+import server.request.LoginRequest;
 import service.ClearService;
 import ui.ChessClient;
 import ui.ClientException;
@@ -52,5 +53,23 @@ public class ServerFacadeTests {
                 facade.register(new UserData("Player", "pass", "a@b.c"))
         );
         assertEquals("Error: already taken", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Login User")
+    public void loginUser() throws Exception {
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        AuthData auth = facade.login(new LoginRequest("Player", "pass"));
+        assertEquals("Player", auth.username());
+    }
+
+    @Test
+    @DisplayName("Login With Wrong Password")
+    public void wrongPassword() throws Exception {
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        ClientException ex = assertThrows(ClientException.class, () ->
+                facade.login(new LoginRequest("Player", "wrong"))
+        );
+        assertEquals("Error: unauthorized", ex.getMessage());
     }
 }
