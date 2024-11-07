@@ -61,7 +61,13 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ClientException {
         int status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ClientException(status, "Error!");
+            String message = switch (status) {
+                case 400 -> "bad request";
+                case 401 -> "unauthorized";
+                case 403 -> "already taken";
+                default -> "something went wrong.";
+            };
+            throw new ClientException(status, "Error: " + message);
         }
     }
 

@@ -2,6 +2,8 @@ package ui;
 
 import java.util.Scanner;
 
+import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
+
 public class Repl {
     private final ChessClient client;
 
