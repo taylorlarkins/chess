@@ -1,13 +1,15 @@
 package client;
 
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import service.ClearService;
 import ui.ChessClient;
+import ui.ClientException;
 import ui.ServerFacade;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
@@ -35,11 +37,20 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-
     @Test
+    @DisplayName("Register User")
     public void register() throws Exception {
-        var authData = facade.register(new UserData("Player", "pass", "a@b.c"));
+        AuthData authData = facade.register(new UserData("Player", "pass", "a@b.c"));
         assertTrue(authData.authToken().length() > 10);
     }
 
+    @Test
+    @DisplayName("Register Existing User")
+    public void reRegister() throws Exception {
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        ClientException ex = assertThrows(ClientException.class, () ->
+                facade.register(new UserData("Player", "pass", "a@b.c"))
+        );
+        assertEquals("Error: already taken", ex.getMessage());
+    }
 }
