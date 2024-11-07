@@ -1,5 +1,8 @@
 package ui;
 
+import model.AuthData;
+import model.UserData;
+
 import java.util.Arrays;
 
 public class ChessClient {
@@ -34,7 +37,12 @@ public class ChessClient {
     }
 
     public String register(String... params) throws ClientException {
-        return "Not implemented";
+        if (params.length == 3) {
+            state = State.LOGGEDIN;
+            AuthData auth = server.register(new UserData(params[0], params[1], params[2]));
+            return String.format("%s has been registered!", auth.username());
+        }
+        throw new ClientException("Expected: <username> <password> <email>");
     }
 
     public String login(String... params) throws ClientException {
@@ -79,5 +87,11 @@ public class ChessClient {
                 quit - exits the application
                 help - lists possible commands
                 """;
+    }
+
+    private void assertLoggedIn() throws ClientException {
+        if (state == State.LOGGEDOUT) {
+            throw new ClientException("You must sign in first!");
+        }
     }
 }
