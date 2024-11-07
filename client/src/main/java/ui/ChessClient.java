@@ -1,5 +1,7 @@
 package ui;
 
+import java.util.Arrays;
+
 public class ChessClient {
     private final ServerFacade server;
     private final String serverUrl;
@@ -8,5 +10,74 @@ public class ChessClient {
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+    }
+
+    public String eval(String input) {
+        try {
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+                case "quit" -> "Goodbye!";
+                case "register" -> register(params);
+                case "login" -> login(params);
+                case "create" -> create(params);
+                case "list" -> list();
+                case "join" -> join(params);
+                case "observe" -> observe(params);
+                case "logout" -> logout();
+                default -> help();
+            };
+        } catch (ClientException ex) {
+            return ex.getMessage();
+        }
+    }
+
+    public String register(String... params) throws ClientException {
+        return "Not implemented";
+    }
+
+    public String login(String... params) throws ClientException {
+        return "Not implemented";
+    }
+
+    public String create(String... params) throws ClientException {
+        return "Not implemented";
+    }
+
+    public String list(String... params) throws ClientException {
+        return "Not implemented";
+    }
+
+    public String join(String... params) throws ClientException {
+        return "Not implemented";
+    }
+
+    public String observe(String... params) throws ClientException {
+        return "Not implemented";
+    }
+
+    public String logout(String... params) throws ClientException {
+        return "Not implemented";
+    }
+
+    public String help() {
+        if (state == State.LOGGEDOUT) {
+            return """
+                    register <username> <password> <email> - creates an account
+                    login <username> <password> - log into your account
+                    quit - exits the application
+                    help - lists possible commands
+                    """;
+        }
+        return """
+                create <name> - creates a new game
+                list - lists games
+                join <id> <black|white> - join a game as the specified team
+                observe <id> -  observe a game
+                logout - logout of your account
+                quit - exits the application
+                help - lists possible commands
+                """;
     }
 }
