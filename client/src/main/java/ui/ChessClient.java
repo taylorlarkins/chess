@@ -7,12 +7,14 @@ import java.util.Arrays;
 
 public class ChessClient {
     private final ServerFacade server;
-    private final String serverUrl;
     private State state = State.LOGGEDOUT;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
-        this.serverUrl = serverUrl;
+    }
+
+    public State getState() {
+        return state;
     }
 
     public String eval(String input) {
@@ -38,7 +40,6 @@ public class ChessClient {
 
     public String register(String... params) throws ClientException {
         if (params.length == 3) {
-            state = State.LOGGEDIN;
             AuthData auth = server.register(new UserData(params[0], params[1], params[2]));
             return String.format("%s has been registered!", auth.username());
         }

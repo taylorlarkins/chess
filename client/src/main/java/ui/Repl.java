@@ -30,6 +30,12 @@ public class Repl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + ">>> ");
+        String state;
+        if (client.getState() == State.LOGGEDOUT) {
+            state = "LOGGED OUT";
+        } else {
+            state = "LOGGED IN";
+        }
+        System.out.printf("\n[%s]" + " >>> ", state);
     }
 }

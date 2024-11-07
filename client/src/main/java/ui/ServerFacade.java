@@ -19,6 +19,14 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public void clear() {
+        try {
+            String path = "/db";
+            makeRequest("DELETE", path, null, null);
+        } catch (ClientException ignore) {
+        }
+    }
+
     public AuthData register(UserData user) throws ClientException {
         String path = "/user";
         return makeRequest("POST", path, user, AuthData.class);
