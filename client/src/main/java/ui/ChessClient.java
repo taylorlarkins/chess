@@ -42,7 +42,7 @@ public class ChessClient {
             AuthData auth = server.register(new UserData(params[0], params[1], params[2]));
             return String.format("%s has been registered!", auth.username());
         }
-        throw new ClientException("Expected: <username> <password> <email>");
+        throw new ClientException(400, "Expected: <username> <password> <email>");
     }
 
     public String login(String... params) throws ClientException {
@@ -91,7 +91,7 @@ public class ChessClient {
 
     private void assertLoggedIn() throws ClientException {
         if (state == State.LOGGEDOUT) {
-            throw new ClientException("You must sign in first!");
+            throw new ClientException(400, "You must sign in first!");
         }
     }
 }
