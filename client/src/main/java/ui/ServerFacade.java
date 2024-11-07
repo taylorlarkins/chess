@@ -3,7 +3,7 @@ package ui;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
-import server.request.LoginRequest;
+import request.LoginRequest;
 
 import java.io.IOException;
 import java.io.InputStream;

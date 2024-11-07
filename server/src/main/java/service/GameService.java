@@ -5,9 +5,9 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
-import server.response.CreateGameResponse;
-import server.request.JoinGameRequest;
-import server.response.ListGamesResponse;
+import response.CreateGameResponse;
+import request.JoinGameRequest;
+import response.ListGamesResponse;
 
 public class GameService {
     private final GameDAO gameDataAccess;

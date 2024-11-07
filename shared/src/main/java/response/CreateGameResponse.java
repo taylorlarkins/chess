@@ -1,4 +1,4 @@
-package server.response;
+package response;
 
 public record CreateGameResponse(int gameID) {
 }

@@ -5,7 +5,7 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
-import server.request.LoginRequest;
+import request.LoginRequest;
 
 import java.util.UUID;
 

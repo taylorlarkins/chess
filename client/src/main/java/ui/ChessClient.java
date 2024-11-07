@@ -2,7 +2,7 @@ package ui;
 
 import model.AuthData;
 import model.UserData;
-import server.request.LoginRequest;
+import request.LoginRequest;
 
 import java.util.Arrays;
 
