@@ -21,7 +21,7 @@ public class ServerFacade {
 
     public AuthData register(UserData user) throws ClientException {
         String path = "/user";
-        return null;
+        return makeRequest("POST", path, user, AuthData.class);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ClientException {
@@ -39,7 +39,6 @@ public class ServerFacade {
             throw new ClientException(500, ex.getMessage());
         }
     }
-
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
@@ -70,7 +69,7 @@ public class ServerFacade {
         }
         return response;
     }
-    
+
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
     }
