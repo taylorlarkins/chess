@@ -7,6 +7,7 @@ import request.LoginRequest;
 import java.util.Arrays;
 
 public class ChessClient {
+    private AuthData user = null;
     private final ServerFacade server;
     private State state = State.LOGGEDOUT;
 
@@ -45,8 +46,9 @@ public class ChessClient {
 
     public String login(String... params) throws ClientException {
         if (params.length == 2) {
-            AuthData auth = server.login(new LoginRequest(params[0], params[1]));
-            return String.format("%s has been logged in!", auth.username());
+            user = server.login(new LoginRequest(params[0], params[1]));
+            state = State.LOGGEDIN;
+            return String.format("%s has been logged in!", user.username());
         }
         throw new ClientException(400, "Expected: <username> <password>");
     }
@@ -68,7 +70,12 @@ public class ChessClient {
     }
 
     public String logout(String... params) throws ClientException {
-        return "Not implemented";
+        assertLoggedIn();
+        state = State.LOGGEDOUT;
+        server.logout(user.authToken());
+        String result = String.format("%s has been logged out.", user.username());
+        user = null;
+        return result;
     }
 
     public String help() {

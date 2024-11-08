@@ -23,22 +23,27 @@ public class ServerFacade {
     public void clear() {
         try {
             String path = "/db";
-            makeRequest("DELETE", path, null, null);
+            makeRequest("DELETE", path, null, null, null);
         } catch (ClientException ignore) {
         }
     }
 
     public AuthData register(UserData user) throws ClientException {
         String path = "/user";
-        return makeRequest("POST", path, user, AuthData.class);
+        return makeRequest("POST", path, user, AuthData.class, null);
     }
 
     public AuthData login(LoginRequest req) throws ClientException {
         String path = "/session";
-        return makeRequest("POST", path, req, AuthData.class);
+        return makeRequest("POST", path, req, AuthData.class, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ClientException {
+    public void logout(String authToken) throws ClientException {
+        String path = "/session";
+        makeRequest("DELETE", path, null, null, authToken);
+    }
+
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ClientException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -46,6 +51,9 @@ public class ServerFacade {
             http.setDoOutput(true);
 
             writeBody(request, http);
+            if (authToken != null) {
+                writeAuthorizationHeader(authToken, http);
+            }
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
@@ -62,6 +70,10 @@ public class ServerFacade {
                 reqBody.write(reqData.getBytes());
             }
         }
+    }
+
+    private static void writeAuthorizationHeader(String authToken, HttpURLConnection http) {
+        http.setRequestProperty("Authorization", authToken);
     }
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ClientException {
