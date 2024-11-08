@@ -2,6 +2,9 @@ package ui;
 
 import java.util.Scanner;
 
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
+
 public class Repl {
     private final ChessClient client;
 
@@ -22,8 +25,8 @@ public class Repl {
                 result = client.eval(line);
                 System.out.print(result);
             } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+                var msg = e.getMessage();
+                System.out.print(SET_TEXT_COLOR_RED + msg + RESET_TEXT_COLOR);
             }
         }
         System.out.println();

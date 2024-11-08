@@ -18,25 +18,21 @@ public class ChessClient {
         return state;
     }
 
-    public String eval(String input) {
-        try {
-            String[] tokens = input.toLowerCase().split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0] : "help";
-            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "quit" -> "Goodbye!";
-                case "register" -> register(params);
-                case "login" -> login(params);
-                case "create" -> create(params);
-                case "list" -> list();
-                case "join" -> join(params);
-                case "observe" -> observe(params);
-                case "logout" -> logout();
-                default -> help();
-            };
-        } catch (ClientException ex) {
-            return ex.getMessage();
-        }
+    public String eval(String input) throws ClientException {
+        String[] tokens = input.toLowerCase().split(" ");
+        String cmd = (tokens.length > 0) ? tokens[0] : "help";
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch (cmd) {
+            case "quit" -> "Goodbye!";
+            case "register" -> register(params);
+            case "login" -> login(params);
+            case "create" -> create(params);
+            case "list" -> list();
+            case "join" -> join(params);
+            case "observe" -> observe(params);
+            case "logout" -> logout();
+            default -> help();
+        };
     }
 
     public String register(String... params) throws ClientException {
