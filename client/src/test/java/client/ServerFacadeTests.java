@@ -3,6 +3,7 @@ package client;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import request.CreateGameRequest;
 import server.Server;
 import request.LoginRequest;
 import ui.ChessClient;
@@ -84,9 +85,31 @@ public class ServerFacadeTests {
     @DisplayName("Logout with Invalid Authorization")
     public void invalidLogout() throws Exception {
         facade.register(new UserData("Player", "pass", "a@b.c"));
-        AuthData auth = facade.login(new LoginRequest("Player", "pass"));
+        facade.login(new LoginRequest("Player", "pass"));
         ClientException ex = assertThrows(ClientException.class, () ->
                 facade.logout("invalid authorization")
+        );
+        assertEquals("Error: unauthorized", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Create Game")
+    public void createGame() throws Exception {
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        AuthData auth = facade.login(new LoginRequest("Player", "pass"));
+        int gameID = facade.createGame(new CreateGameRequest("TestGame"), auth.authToken());
+        assertEquals(1, gameID);
+        int gameID2 = facade.createGame(new CreateGameRequest("TestGame2"), auth.authToken());
+        assertEquals(2, gameID2);
+    }
+
+    @Test
+    @DisplayName("Create Game with Invalid Authorization")
+    public void createGameInvalid() throws Exception {
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        facade.login(new LoginRequest("Player", "pass"));
+        ClientException ex = assertThrows(ClientException.class, () ->
+                facade.createGame(new CreateGameRequest("TestGame"), "invalid authorization")
         );
         assertEquals("Error: unauthorized", ex.getMessage());
     }

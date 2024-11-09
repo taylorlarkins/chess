@@ -21,8 +21,8 @@ public class ChessClient {
     }
 
     public String eval(String input) throws ClientException {
-        String[] tokens = input.toLowerCase().split(" ");
-        String cmd = (tokens.length > 0) ? tokens[0] : "help";
+        String[] tokens = input.split(" ");
+        String cmd = (tokens.length > 0) ? tokens[0] = tokens[0].toLowerCase() : "help";
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
         return switch (cmd) {
             case "quit" -> "Goodbye!";
