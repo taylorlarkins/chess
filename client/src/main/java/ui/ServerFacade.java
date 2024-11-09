@@ -3,7 +3,9 @@ package ui;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
+import request.CreateGameRequest;
 import request.LoginRequest;
+import response.CreateGameResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,17 +45,22 @@ public class ServerFacade {
         makeRequest("DELETE", path, null, null, authToken);
     }
 
+    public int createGame(CreateGameRequest req, String authToken) throws ClientException {
+        String path = "/game";
+        CreateGameResponse res = makeRequest("POST", path, req, CreateGameResponse.class, authToken);
+        return res.gameID();
+    }
+
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ClientException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
-
-            writeBody(request, http);
             if (authToken != null) {
                 writeAuthorizationHeader(authToken, http);
             }
+            writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);

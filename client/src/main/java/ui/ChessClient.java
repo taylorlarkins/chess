@@ -2,6 +2,7 @@ package ui;
 
 import model.AuthData;
 import model.UserData;
+import request.CreateGameRequest;
 import request.LoginRequest;
 
 import java.util.Arrays;
@@ -54,7 +55,11 @@ public class ChessClient {
     }
 
     public String create(String... params) throws ClientException {
-        return "Not implemented";
+        if (params.length == 1) {
+            int gameID = server.createGame(new CreateGameRequest(params[0]), user.authToken());
+            return String.format("A game titled \"%s\" has been created (Game ID: %d).", params[0], gameID);
+        }
+        throw new ClientException(400, "Expected: <game name>");
     }
 
     public String list(String... params) throws ClientException {
