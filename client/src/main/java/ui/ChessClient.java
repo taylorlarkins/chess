@@ -1,19 +1,23 @@
 package ui;
 
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import request.CreateGameRequest;
 import request.LoginRequest;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ChessClient {
     private AuthData user = null;
     private final ServerFacade server;
     private State state = State.LOGGEDOUT;
+    private HashMap<Integer, Integer> gameMap;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
+        gameMap = new HashMap<>();
     }
 
     public State getState() {
@@ -56,14 +60,35 @@ public class ChessClient {
 
     public String create(String... params) throws ClientException {
         if (params.length == 1) {
-            int gameID = server.createGame(new CreateGameRequest(params[0]), user.authToken());
-            return String.format("A game titled \"%s\" has been created (Game ID: %d).", params[0], gameID);
+            server.createGame(new CreateGameRequest(params[0]), user.authToken());
+            return String.format("A game titled \"%s\" has been created.", params[0]);
         }
         throw new ClientException(400, "Expected: <game name>");
     }
 
     public String list(String... params) throws ClientException {
-        return "Not implemented";
+        GameData[] games = server.listGames(user.authToken());
+        gameMap.clear();
+        StringBuilder result = new StringBuilder();
+        int i = 1;
+        for (GameData game : games) {
+            gameMap.put(i, game.gameID());
+            String whiteUsername = game.whiteUsername();
+            String blackUsername = game.blackUsername();
+            if (whiteUsername == null) {
+                whiteUsername = "None";
+            }
+            if (blackUsername == null) {
+                blackUsername = "None";
+            }
+            result.append(i).append(": ")
+                    .append(game.gameName())
+                    .append(" - White: ").append(whiteUsername)
+                    .append(" | Black: ").append(blackUsername)
+                    .append("\n");
+            i++;
+        }
+        return result.toString();
     }
 
     public String join(String... params) throws ClientException {
