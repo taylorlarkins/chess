@@ -71,4 +71,23 @@ public class ServerFacadeTests {
         );
         assertEquals("Error: unauthorized", ex.getMessage());
     }
+
+    @Test
+    @DisplayName("Logout")
+    public void logout() throws Exception {
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        AuthData auth = facade.login(new LoginRequest("Player", "pass"));
+        assertDoesNotThrow(() -> facade.logout(auth.authToken()));
+    }
+
+    @Test
+    @DisplayName("Logout with Invalid Authorization")
+    public void invalidLogout() throws Exception {
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        AuthData auth = facade.login(new LoginRequest("Player", "pass"));
+        ClientException ex = assertThrows(ClientException.class, () ->
+                facade.logout("invalid authorization")
+        );
+        assertEquals("Error: unauthorized", ex.getMessage());
+    }
 }
