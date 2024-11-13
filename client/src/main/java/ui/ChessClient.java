@@ -13,7 +13,7 @@ public class ChessClient {
     private AuthData user = null;
     private final ServerFacade server;
     private State state = State.LOGGEDOUT;
-    private HashMap<Integer, Integer> gameMap;
+    private final HashMap<Integer, Integer> gameMap;
 
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);

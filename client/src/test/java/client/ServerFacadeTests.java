@@ -1,6 +1,7 @@
 package client;
 
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import request.CreateGameRequest;
@@ -9,6 +10,8 @@ import request.LoginRequest;
 import ui.ChessClient;
 import ui.ClientException;
 import ui.ServerFacade;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -111,5 +114,21 @@ public class ServerFacadeTests {
                 facade.createGame(new CreateGameRequest("TestGame"), "invalid authorization")
         );
         assertEquals("Error: unauthorized", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("List Games")
+    public void listGames() throws Exception {
+        String[] givenNames = {"Chess Game", "I Like Chess", "Cow"};
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        AuthData auth = facade.login(new LoginRequest("Player", "pass"));
+        facade.createGame(new CreateGameRequest(givenNames[0]), auth.authToken());
+        facade.createGame(new CreateGameRequest(givenNames[1]), auth.authToken());
+        facade.createGame(new CreateGameRequest(givenNames[2]), auth.authToken());
+        GameData[] result = facade.listGames(auth.authToken());
+        String[] resultNames = {result[0].gameName(), result[1].gameName(), result[2].gameName()};
+        Arrays.sort(givenNames);
+        Arrays.sort(resultNames);
+        assertArrayEquals(givenNames, resultNames);
     }
 }
