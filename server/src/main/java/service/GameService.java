@@ -39,11 +39,11 @@ public class GameService {
         if (game == null || requestedColor == null) {
             throw new ServiceException(400, "Error: bad request");
         }
-        if (requestedColor.equals("WHITE") && game.whiteUsername() != null
-                || requestedColor.equals("BLACK") && game.blackUsername() != null) {
+        if (requestedColor.equalsIgnoreCase("WHITE") && game.whiteUsername() != null
+                || requestedColor.equalsIgnoreCase("BLACK") && game.blackUsername() != null) {
             throw new ServiceException(403, "Error: already taken");
         }
-        if (requestedColor.equals("WHITE")) {
+        if (requestedColor.equalsIgnoreCase("WHITE")) {
             gameDataAccess.updateGame(new GameData(
                     game.gameID(),
                     auth.username(),
