@@ -1,9 +1,11 @@
 package ui;
 
+import chess.ChessBoard;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 
 import java.util.Arrays;
@@ -43,8 +45,10 @@ public class ChessClient {
 
     public String register(String... params) throws ClientException {
         if (params.length == 3) {
-            AuthData auth = server.register(new UserData(params[0], params[1], params[2]));
-            return String.format("%s has been registered!", auth.username());
+            server.register(new UserData(params[0], params[1], params[2]));
+            user = server.login(new LoginRequest(params[0], params[1]));
+            state = State.LOGGEDIN;
+            return String.format("%s has been logged in!", user.username());
         }
         throw new ClientException(400, "Expected: <username> <password> <email>");
     }
@@ -96,7 +100,13 @@ public class ChessClient {
     }
 
     public String join(String... params) throws ClientException {
-        return "Not implemented";
+        if (params.length == 2 && (params[1].equals("WHITE") || params[1].equals("BLACK"))) {
+            int gameID = gameMap.get(Integer.parseInt(params[0]));
+            server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
+            printGame();
+            return "";
+        }
+        throw new ClientException(400, "Expected: <id> <BLACK|WHITE>");
     }
 
     public String observe(String... params) throws ClientException {
@@ -124,7 +134,7 @@ public class ChessClient {
         return """
                 create <name> - creates a new game
                 list - lists games
-                join <id> <black|white> - join a game as the specified team
+                join <id> <BLACK|WHITE> - join a game as the specified team
                 observe <id> -  observe a game
                 logout - logout of your account
                 quit - exits the application
@@ -136,5 +146,11 @@ public class ChessClient {
         if (state == State.LOGGEDOUT) {
             throw new ClientException(400, "You must sign in first!");
         }
+    }
+
+    private void printGame() {
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        System.out.print(board);
     }
 }

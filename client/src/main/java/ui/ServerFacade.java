@@ -5,6 +5,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import response.ListGamesResponse;
 
@@ -55,6 +56,11 @@ public class ServerFacade {
         String path = "/game";
         ListGamesResponse res = makeRequest("GET", path, null, ListGamesResponse.class, authToken);
         return res.games();
+    }
+
+    public void joinGame(JoinGameRequest req, String authToken) throws ClientException {
+        String path = "/game";
+        makeRequest("PUT", path, req, null, authToken);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ClientException {
