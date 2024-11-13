@@ -36,7 +36,7 @@ public class ChessClient {
         String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
         return switch (cmd) {
-            case "quit" -> "Goodbye!";
+            case "quit" -> quit();
             case "register" -> register(params);
             case "login" -> login(params);
             case "create" -> create(params);
@@ -46,6 +46,11 @@ public class ChessClient {
             case "logout" -> logout();
             default -> help();
         };
+    }
+
+    public String quit() throws ClientException {
+        assertLoggedOut();
+        return "Goodbye!";
     }
 
     public String register(String... params) throws ClientException {
@@ -168,7 +173,6 @@ public class ChessClient {
                 join <id> <BLACK|WHITE> - join a game as the specified team
                 observe <id> -  observe a game
                 logout - logout of your account
-                quit - exits the application
                 help - lists possible commands
                 """;
     }
@@ -184,6 +188,12 @@ public class ChessClient {
     private void assertLoggedIn() throws ClientException {
         if (state == State.LOGGEDOUT) {
             throw new ClientException(400, "You must sign in first!");
+        }
+    }
+
+    private void assertLoggedOut() throws ClientException {
+        if (state == State.LOGGEDIN) {
+            throw new ClientException(400, "You must sign out first!");
         }
     }
 
