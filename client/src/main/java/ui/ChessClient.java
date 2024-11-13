@@ -119,12 +119,7 @@ public class ChessClient {
         assertLoggedIn();
         if (params.length == 2 && (params[1].equals("WHITE") || params[1].equals("BLACK"))) {
             updateGameMap();
-            Integer gameID;
-            try {
-                gameID = gameMap.get(Integer.parseInt(params[0]));
-            } catch (Exception ex) {
-                throw new ClientException(400, "Invalid game ID!");
-            }
+            int gameID = getGameID(params[0]);
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
             printGame(true);
             printGame(false);
@@ -136,11 +131,7 @@ public class ChessClient {
     public String observe(String... params) throws ClientException {
         assertLoggedIn();
         if (params.length == 1) {
-            try {
-                gameMap.get(Integer.parseInt(params[0]));
-            } catch (Exception ex) {
-                throw new ClientException(400, "Invalid game ID!");
-            }
+            getGameID(params[0]);
             printGame(true);
             printGame(false);
             return "";
@@ -185,6 +176,20 @@ public class ChessClient {
         }
     }
 
+    private int getGameID(String input) throws ClientException {
+        Integer gameID;
+        try {
+            int inputID = Integer.parseInt(input);
+            gameID = gameMap.get(inputID);
+        } catch (NumberFormatException ex) {
+            throw new ClientException(400, "Invalid game ID!");
+        }
+        if (gameID == null) {
+            throw new ClientException(400, "Invalid game ID!");
+        }
+        return gameID;
+    }
+
     private void assertLoggedIn() throws ClientException {
         if (state == State.LOGGEDOUT) {
             throw new ClientException(400, "You must sign in first!");
@@ -222,7 +227,7 @@ public class ChessClient {
             for (int row = 8; row >= 1; row--) {
                 System.out.print(SET_BG_COLOR_LIGHT_GREY + perspective);
                 System.out.print(" " + row + " " + RESET_BG_COLOR);
-                for (int col = 8; col >= 1; col--) {
+                for (int col = 1; col <= 8; col++) {
                     System.out.print(checkerColors[(col + row) % 2]);
                     System.out.print(" " + getPiece(board, row, col) + " ");
                 }
@@ -232,7 +237,7 @@ public class ChessClient {
             for (int row = 1; row <= 8; row++) {
                 System.out.print(SET_BG_COLOR_LIGHT_GREY + perspective);
                 System.out.print(" " + row + " " + RESET_BG_COLOR);
-                for (int col = 1; col <= 8; col++) {
+                for (int col = 8; col >= 1; col--) {
                     System.out.print(checkerColors[(col + row) % 2]);
                     System.out.print(" " + getPiece(board, row, col) + " ");
                 }
