@@ -69,9 +69,14 @@ public class ChessClient {
 
     public String create(String... params) throws ClientException {
         assertLoggedIn();
-        if (params.length == 1) {
-            server.createGame(new CreateGameRequest(params[0]), user.authToken());
-            return String.format("A game titled \"%s\" has been created.", params[0]);
+        if (params.length >= 1) {
+            StringBuilder gameName = new StringBuilder();
+            for (String word : params) {
+                gameName.append(word).append(" ");
+            }
+            gameName.deleteCharAt(gameName.length() - 1);
+            server.createGame(new CreateGameRequest(gameName.toString()), user.authToken());
+            return String.format("A game titled \"%s\" has been created.", gameName);
         }
         throw new ClientException(400, "Expected: <game name>");
     }
