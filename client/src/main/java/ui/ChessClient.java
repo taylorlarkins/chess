@@ -117,7 +117,8 @@ public class ChessClient {
 
     public String join(String... params) throws ClientException {
         assertLoggedIn();
-        if (params.length == 2 && (params[1].equals("WHITE") || params[1].equals("BLACK"))) {
+        if (params.length == 2 &&
+                (params[1].equalsIgnoreCase("WHITE") || params[1].equalsIgnoreCase("BLACK"))) {
             updateGameMap();
             int gameID = getGameID(params[0]);
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
@@ -220,7 +221,7 @@ public class ChessClient {
     }
 
     private void printBoard(boolean whitePerspective, String perspective) {
-        String[] checkerColors = {SET_BG_COLOR_WHITE, SET_BG_COLOR_BLACK};
+        String[] checkerColors = {SET_BG_COLOR_BLACK, SET_BG_COLOR_WHITE};
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         if (whitePerspective) {
