@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthDataAccessTests {
     private static AuthDAO authDAO;
-    private static final AuthData testAuth1 = new AuthData("001", "user123");
-    private static final AuthData testAuth2 = new AuthData("002", "iAmAUser");
+    private static final AuthData TESTAUTH1 = new AuthData("001", "user123");
+    private static final AuthData TESTAUTH2 = new AuthData("002", "iAmAUser");
 
     public AuthDataAccessTests() throws DataAccessException {
         authDAO = new SQLAuthDAO();
@@ -26,8 +26,8 @@ public class AuthDataAccessTests {
     @DisplayName("Clear User Data")
     public void clearData() throws DataAccessException {
 
-        authDAO.addAuth(testAuth1);
-        authDAO.addAuth(testAuth2);
+        authDAO.addAuth(TESTAUTH1);
+        authDAO.addAuth(TESTAUTH2);
         assertEquals(2, authDAO.getSize());
         authDAO.clear();
         assertEquals(0, authDAO.getSize());
@@ -36,7 +36,7 @@ public class AuthDataAccessTests {
     @Test
     @DisplayName("Create Authorization Token")
     public void createAuthToken() throws DataAccessException {
-        assertDoesNotThrow(() -> authDAO.addAuth(testAuth1));
+        assertDoesNotThrow(() -> authDAO.addAuth(TESTAUTH1));
         assertEquals(1, authDAO.getSize());
     }
 
@@ -45,9 +45,9 @@ public class AuthDataAccessTests {
     @Test
     @DisplayName("Get Authorization")
     public void getAuth() throws DataAccessException {
-        authDAO.addAuth(testAuth1);
-        AuthData getAuth = assertDoesNotThrow(() -> authDAO.getAuth(testAuth1.authToken()));
-        assertEquals(testAuth1.authToken(), getAuth.authToken());
+        authDAO.addAuth(TESTAUTH1);
+        AuthData getAuth = assertDoesNotThrow(() -> authDAO.getAuth(TESTAUTH1.authToken()));
+        assertEquals(TESTAUTH1.authToken(), getAuth.authToken());
         assertEquals("user123", getAuth.username());
     }
 
@@ -60,9 +60,9 @@ public class AuthDataAccessTests {
     @Test
     @DisplayName("Delete Authorization")
     public void deleteAuthorization() throws DataAccessException {
-        authDAO.addAuth(testAuth2);
-        assertDoesNotThrow(() -> authDAO.deleteAuth(testAuth2.authToken()));
-        assertNull(authDAO.getAuth(testAuth2.authToken()));
+        authDAO.addAuth(TESTAUTH2);
+        assertDoesNotThrow(() -> authDAO.deleteAuth(TESTAUTH2.authToken()));
+        assertNull(authDAO.getAuth(TESTAUTH2.authToken()));
     }
 
     @Test

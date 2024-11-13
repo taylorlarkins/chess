@@ -76,7 +76,7 @@ public class ChessClient {
         throw new ClientException(400, "Expected: <game name>");
     }
 
-    public String list(String... params) throws ClientException {
+    public String list() throws ClientException {
         assertLoggedIn();
         GameData[] games = server.listGames(user.authToken());
         updateGameMap();
@@ -129,7 +129,7 @@ public class ChessClient {
         return "";
     }
 
-    public String logout(String... params) throws ClientException {
+    public String logout() throws ClientException {
         assertLoggedIn();
         state = State.LOGGEDOUT;
         server.logout(user.authToken());
