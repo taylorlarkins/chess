@@ -69,6 +69,9 @@ public class ChessClient {
     public String list(String... params) throws ClientException {
         GameData[] games = server.listGames(user.authToken());
         gameMap.clear();
+        if (games.length == 0) {
+            return "No existing games!";
+        }
         StringBuilder result = new StringBuilder();
         int i = 1;
         for (GameData game : games) {
@@ -88,6 +91,7 @@ public class ChessClient {
                     .append("\n");
             i++;
         }
+        result.deleteCharAt(result.length() - 1);
         return result.toString();
     }
 

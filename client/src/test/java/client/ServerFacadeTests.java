@@ -131,4 +131,15 @@ public class ServerFacadeTests {
         Arrays.sort(resultNames);
         assertArrayEquals(givenNames, resultNames);
     }
+
+    @Test
+    @DisplayName("List Games without Authorization")
+    public void listGamesInvalid() throws Exception {
+        facade.register(new UserData("Player", "pass", "a@b.c"));
+        facade.login(new LoginRequest("Player", "pass"));
+        ClientException ex = assertThrows(ClientException.class, () ->
+                facade.listGames("invalid authorization")
+        );
+        assertEquals("Error: unauthorized", ex.getMessage());
+    }
 }
