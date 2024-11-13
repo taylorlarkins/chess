@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -10,6 +12,8 @@ import request.LoginRequest;
 
 import java.util.Arrays;
 import java.util.HashMap;
+
+import static ui.EscapeSequences.*;
 
 public class ChessClient {
     private AuthData user = null;
@@ -63,6 +67,7 @@ public class ChessClient {
     }
 
     public String create(String... params) throws ClientException {
+        assertLoggedIn();
         if (params.length == 1) {
             server.createGame(new CreateGameRequest(params[0]), user.authToken());
             return String.format("A game titled \"%s\" has been created.", params[0]);
@@ -71,15 +76,15 @@ public class ChessClient {
     }
 
     public String list(String... params) throws ClientException {
+        assertLoggedIn();
         GameData[] games = server.listGames(user.authToken());
-        gameMap.clear();
+        updateGameMap();
         if (games.length == 0) {
             return "No existing games!";
         }
         StringBuilder result = new StringBuilder();
         int i = 1;
         for (GameData game : games) {
-            gameMap.put(i, game.gameID());
             String whiteUsername = game.whiteUsername();
             String blackUsername = game.blackUsername();
             if (whiteUsername == null) {
@@ -100,7 +105,9 @@ public class ChessClient {
     }
 
     public String join(String... params) throws ClientException {
+        assertLoggedIn();
         if (params.length == 2 && (params[1].equals("WHITE") || params[1].equals("BLACK"))) {
+            updateGameMap();
             int gameID = gameMap.get(Integer.parseInt(params[0]));
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
             printGame();
@@ -110,7 +117,11 @@ public class ChessClient {
     }
 
     public String observe(String... params) throws ClientException {
-        return "Not implemented";
+        assertLoggedIn();
+        if (params.length == 1) {
+            printGame();
+        }
+        throw new ClientException(400, "Expected: <id>");
     }
 
     public String logout(String... params) throws ClientException {
@@ -142,6 +153,14 @@ public class ChessClient {
                 """;
     }
 
+    private void updateGameMap() throws ClientException {
+        GameData[] games = server.listGames(user.authToken());
+        gameMap.clear();
+        for (int i = 1; i <= games.length; i++) {
+            gameMap.put(i, games[i - 1].gameID());
+        }
+    }
+
     private void assertLoggedIn() throws ClientException {
         if (state == State.LOGGEDOUT) {
             throw new ClientException(400, "You must sign in first!");
@@ -150,7 +169,28 @@ public class ChessClient {
 
     private void printGame() {
         ChessBoard board = new ChessBoard();
+        String[] checkerColors = {SET_BG_COLOR_WHITE, SET_BG_COLOR_BLACK};
         board.resetBoard();
-        System.out.print(board);
+        System.out.print(SET_TEXT_BOLD);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        System.out.print("  a  b  c  d  e  f  g  h  \n");
+        for (int row = 1; row <= 8; row++) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+            System.out.print(" " + row + " ");
+            for (int col = 1; col <= 8; col++) {
+                System.out.print(checkerColors[col % 2]);
+                System.out.print(" " + getPiece(board, row, col) + " ");
+            }
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+            System.out.print(" " + row + " \n");
+        }
+    }
+
+    private String getPiece(ChessBoard board, int row, int col) {
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+        if (piece == null) {
+            return " ";
+        }
+        return piece.toString();
     }
 }
