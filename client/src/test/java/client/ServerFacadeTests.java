@@ -5,6 +5,7 @@ import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import server.Server;
 import request.LoginRequest;
 import ui.ChessClient;
@@ -141,5 +142,36 @@ public class ServerFacadeTests {
                 facade.listGames("invalid authorization")
         );
         assertEquals("Error: unauthorized", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Join Game")
+    public void joinGame() throws Exception {
+        facade.register(new UserData("Player1", "pass", "a@b.c"));
+        AuthData auth1 = facade.login(new LoginRequest("Player1", "pass"));
+        facade.createGame(new CreateGameRequest("TestGame1"), auth1.authToken());
+        assertDoesNotThrow(() ->
+                facade.joinGame(new JoinGameRequest("BLACK", 1), auth1.authToken())
+        );
+        facade.register(new UserData("Player2", "pass", "a@b.c"));
+        AuthData auth2 = facade.login(new LoginRequest("Player2", "pass"));
+        assertDoesNotThrow(() ->
+                facade.joinGame(new JoinGameRequest("WHITE", 1), auth2.authToken())
+        );
+    }
+
+    @Test
+    @DisplayName("Join Game as Already Taken Color")
+    public void joinGameAlreadyTaken() throws Exception {
+        facade.register(new UserData("Player1", "pass", "a@b.c"));
+        AuthData auth1 = facade.login(new LoginRequest("Player1", "pass"));
+        facade.createGame(new CreateGameRequest("TestGame1"), auth1.authToken());
+        facade.joinGame(new JoinGameRequest("BLACK", 1), auth1.authToken());
+        facade.register(new UserData("Player2", "pass", "a@b.c"));
+        AuthData auth2 = facade.login(new LoginRequest("Player2", "pass"));
+        ClientException ex = assertThrows(ClientException.class, () ->
+                facade.joinGame(new JoinGameRequest("BLACK", 1), auth2.authToken())
+        );
+        assertEquals("Error: already taken", ex.getMessage());
     }
 }
