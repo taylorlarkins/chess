@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.AuthData;
@@ -110,7 +111,8 @@ public class ChessClient {
             updateGameMap();
             int gameID = gameMap.get(Integer.parseInt(params[0]));
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
-            printGame();
+            printGame(true);
+            printGame(false);
             return "";
         }
         throw new ClientException(400, "Expected: <id> <BLACK|WHITE>");
@@ -119,9 +121,12 @@ public class ChessClient {
     public String observe(String... params) throws ClientException {
         assertLoggedIn();
         if (params.length == 1) {
-            printGame();
+            printGame(true);
+            printGame(false);
+        } else {
+            throw new ClientException(400, "Expected: <id>");
         }
-        throw new ClientException(400, "Expected: <id>");
+        return "";
     }
 
     public String logout(String... params) throws ClientException {
@@ -167,22 +172,47 @@ public class ChessClient {
         }
     }
 
-    private void printGame() {
-        ChessBoard board = new ChessBoard();
+    private void printGame(boolean whitePerspective) {
+        String perspective;
+        String fileLabels;
+        if (whitePerspective) {
+            perspective = SET_TEXT_COLOR_WHITE;
+            fileLabels = "    a  b  c  d  e  f  g  h    ";
+        } else {
+            perspective = SET_TEXT_COLOR_BLACK;
+            fileLabels = "    h  g  f  e  d  c  b  a    ";
+        }
+        System.out.print(perspective + SET_TEXT_BOLD + SET_BG_COLOR_LIGHT_GREY);
+        System.out.println(SET_BG_COLOR_LIGHT_GREY + fileLabels + RESET_BG_COLOR);
+        printBoard(whitePerspective, perspective);
+        System.out.print(SET_BG_COLOR_LIGHT_GREY + fileLabels + RESET_BG_COLOR);
+        System.out.println(RESET_TEXT_COLOR + RESET_TEXT_BOLD_FAINT);
+    }
+
+    private void printBoard(boolean whitePerspective, String perspective) {
         String[] checkerColors = {SET_BG_COLOR_WHITE, SET_BG_COLOR_BLACK};
+        ChessBoard board = new ChessBoard();
         board.resetBoard();
-        System.out.print(SET_TEXT_BOLD);
-        System.out.print(SET_BG_COLOR_LIGHT_GREY);
-        System.out.print("  a  b  c  d  e  f  g  h  \n");
-        for (int row = 1; row <= 8; row++) {
-            System.out.print(SET_BG_COLOR_LIGHT_GREY);
-            System.out.print(" " + row + " ");
-            for (int col = 1; col <= 8; col++) {
-                System.out.print(checkerColors[col % 2]);
-                System.out.print(" " + getPiece(board, row, col) + " ");
+        if (whitePerspective) {
+            for (int row = 8; row >= 1; row--) {
+                System.out.print(SET_BG_COLOR_LIGHT_GREY + perspective);
+                System.out.print(" " + row + " " + RESET_BG_COLOR);
+                for (int col = 8; col >= 1; col--) {
+                    System.out.print(checkerColors[(col + row) % 2]);
+                    System.out.print(" " + getPiece(board, row, col) + " ");
+                }
+                System.out.println(SET_BG_COLOR_LIGHT_GREY + perspective + " " + row + " " + RESET_BG_COLOR);
             }
-            System.out.print(SET_BG_COLOR_LIGHT_GREY);
-            System.out.print(" " + row + " \n");
+        } else {
+            for (int row = 1; row <= 8; row++) {
+                System.out.print(SET_BG_COLOR_LIGHT_GREY + perspective);
+                System.out.print(" " + row + " " + RESET_BG_COLOR);
+                for (int col = 1; col <= 8; col++) {
+                    System.out.print(checkerColors[(col + row) % 2]);
+                    System.out.print(" " + getPiece(board, row, col) + " ");
+                }
+                System.out.println(SET_BG_COLOR_LIGHT_GREY + perspective + " " + row + " " + RESET_BG_COLOR);
+            }
         }
     }
 
@@ -191,6 +221,12 @@ public class ChessClient {
         if (piece == null) {
             return " ";
         }
-        return piece.toString();
+        String color;
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            color = SET_TEXT_COLOR_BLUE;
+        } else {
+            color = SET_TEXT_COLOR_RED;
+        }
+        return color + piece;
     }
 }
