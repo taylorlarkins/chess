@@ -109,7 +109,10 @@ public class ChessClient {
         assertLoggedIn();
         if (params.length == 2 && (params[1].equals("WHITE") || params[1].equals("BLACK"))) {
             updateGameMap();
-            int gameID = gameMap.get(Integer.parseInt(params[0]));
+            Integer gameID = gameMap.get(Integer.parseInt(params[0]));
+            if (gameID == null) {
+                throw new ClientException(400, "Invalid game ID!");
+            }
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
             printGame(true);
             printGame(false);
@@ -121,12 +124,16 @@ public class ChessClient {
     public String observe(String... params) throws ClientException {
         assertLoggedIn();
         if (params.length == 1) {
+            Integer gameID = gameMap.get(Integer.parseInt(params[0]));
+            if (gameID == null) {
+                throw new ClientException(400, "Invalid game ID!");
+            }
             printGame(true);
             printGame(false);
+            return "";
         } else {
             throw new ClientException(400, "Expected: <id>");
         }
-        return "";
     }
 
     public String logout() throws ClientException {
