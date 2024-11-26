@@ -10,6 +10,8 @@ import model.UserData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.LoginRequest;
+import websocket.NotificationHandler;
+import websocket.WebSocketFacade;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,12 +20,18 @@ import static ui.EscapeSequences.*;
 
 public class ChessClient {
     private AuthData user = null;
+    private final String serverUrl;
     private final ServerFacade server;
+    private WebSocketFacade ws;
+    private final NotificationHandler notificationHandler;
     private State state = State.LOGGEDOUT;
     private final HashMap<Integer, Integer> gameMap;
 
-    public ChessClient(String serverUrl) {
-        server = new ServerFacade(serverUrl);
+
+    public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
+        this.serverUrl = serverUrl;
+        this.notificationHandler = notificationHandler;
+        server = new ServerFacade(this.serverUrl);
         gameMap = new HashMap<>();
     }
 
@@ -58,6 +66,8 @@ public class ChessClient {
             server.register(new UserData(params[0], params[1], params[2]));
             user = server.login(new LoginRequest(params[0], params[1]));
             state = State.LOGGEDIN;
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            // TODO
             return String.format("%s has been logged in!", user.username());
         }
         throw new ClientException(400, "Expected: <username> <password> <email>");
@@ -67,6 +77,8 @@ public class ChessClient {
         if (params.length == 2) {
             user = server.login(new LoginRequest(params[0], params[1]));
             state = State.LOGGEDIN;
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            // TODO
             return String.format("%s has been logged in!", user.username());
         }
         throw new ClientException(400, "Expected: <username> <password>");

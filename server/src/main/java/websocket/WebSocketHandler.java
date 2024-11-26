@@ -13,7 +13,8 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+        // TODO: figure out a way to properly deserialize messages
+        UserGameCommand command = null; // replace with deserialized obj
         switch (command.getCommandType()) {
             case CONNECT -> connect();
             case LEAVE -> leave();
@@ -22,7 +23,7 @@ public class WebSocketHandler {
     }
 
     private void connect() {
-        
+
     }
 
     private void leave() {

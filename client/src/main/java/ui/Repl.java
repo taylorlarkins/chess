@@ -1,15 +1,18 @@
 package ui;
 
+import websocket.NotificationHandler;
+import websocket.messages.ServerMessage;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 import static ui.EscapeSequences.SET_TEXT_COLOR_RED;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     private final ChessClient client;
 
     public Repl(String serverUrl) {
-        client = new ChessClient(serverUrl);
+        client = new ChessClient(serverUrl, this);
     }
 
     public void run() {
@@ -40,5 +43,11 @@ public class Repl {
             state = "LOGGED IN";
         }
         System.out.printf("\n[%s]" + " >>> ", state);
+    }
+
+    @Override
+    public void notify(ServerMessage notification) {
+        //TODO
+        //Output formatting will vary depending on ServerMessage type
     }
 }

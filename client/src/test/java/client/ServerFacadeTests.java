@@ -29,7 +29,7 @@ public class ServerFacadeTests {
         int port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade("http://localhost:" + port);
-        client = new ChessClient("http://localhost:" + port);
+        client = new ChessClient("http://localhost:" + port, null);
     }
 
     @BeforeEach
