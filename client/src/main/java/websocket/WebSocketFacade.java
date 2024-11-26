@@ -2,6 +2,10 @@ package websocket;
 
 import com.google.gson.Gson;
 import ui.ClientException;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -20,12 +24,9 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-                @Override
-                public void onMessage(String message) {
-                    // TODO: figure out a way to properly deserialize messages
-                    notificationHandler.notify(null /* replace with deserialized obj */);
-                }
+            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
+                ServerMessage notification = deserializeMessage(message);
+                notificationHandler.notify(notification);
             });
         } catch (Exception ex) {
             throw new ClientException(500, ex.getMessage());
@@ -34,5 +35,15 @@ public class WebSocketFacade extends Endpoint {
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
+
+    private ServerMessage deserializeMessage(String message) {
+        ServerMessage.ServerMessageType messageType = new Gson().fromJson(message, ServerMessage.class).getServerMessageType();
+        Class<?> clazz = switch (messageType) {
+            case LOAD_GAME -> LoadGameMessage.class;
+            case ERROR -> ErrorMessage.class;
+            case NOTIFICATION -> NotificationMessage.class;
+        };
+        return (ServerMessage) new Gson().fromJson(message, clazz);
     }
 }

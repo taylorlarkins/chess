@@ -9,12 +9,11 @@ import websocket.commands.UserGameCommand;
 @WebSocket
 public class WebSocketHandler {
 
-    private final websocket.ConnectionManager connections = new websocket.ConnectionManager();
+    private final ConnectionManager connections = new ConnectionManager();
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-        // TODO: figure out a way to properly deserialize messages
-        UserGameCommand command = null; // replace with deserialized obj
+        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> connect();
             case LEAVE -> leave();
