@@ -61,6 +61,7 @@ public class ServerFacade {
     public void joinGame(JoinGameRequest req, String authToken) throws ClientException {
         String path = "/game";
         makeRequest("PUT", path, req, null, authToken);
+
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ClientException {

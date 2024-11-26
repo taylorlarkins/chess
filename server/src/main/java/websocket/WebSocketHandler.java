@@ -22,7 +22,7 @@ public class WebSocketHandler {
     }
 
     private void connect() {
-
+        
     }
 
     private void leave() {

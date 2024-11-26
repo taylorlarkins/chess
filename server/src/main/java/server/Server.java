@@ -11,12 +11,14 @@ import service.GameService;
 import service.ServiceException;
 import service.UserService;
 import spark.*;
+import websocket.WebSocketHandler;
 
 public class Server {
     private final Gson serializer = new Gson();
     private final UserService userService;
     private final GameService gameService;
     private final ClearService clearService;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         UserDAO userDataAccess;
@@ -31,6 +33,7 @@ public class Server {
             authDataAccess = new MemoryAuthDAO();
             gameDataAccess = new MemoryGameDAO();
         }
+        webSocketHandler = new WebSocketHandler();
         userService = new UserService(userDataAccess, authDataAccess);
         gameService = new GameService(gameDataAccess, authDataAccess);
         clearService = new ClearService(gameDataAccess, userDataAccess, authDataAccess);
@@ -41,7 +44,8 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/ws", webSocketHandler);
+
         Spark.delete("/db", this::deleteData);
         Spark.post("/user", this::registerUser);
         Spark.post("/session", this::login);
