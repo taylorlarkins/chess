@@ -12,11 +12,10 @@ public class WebSocketHandler {
     private final websocket.ConnectionManager connections = new websocket.ConnectionManager();
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws Exception {
+    public void onMessage(Session session, String message) {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> connect();
-            case MAKE_MOVE -> makeMove();
             case LEAVE -> leave();
             case RESIGN -> resign();
         }
@@ -26,15 +25,15 @@ public class WebSocketHandler {
 
     }
 
-    private void makeMove() {
-
-    }
-
     private void leave() {
 
     }
 
     private void resign() {
+
+    }
+
+    private void makeMove() {
 
     }
 }
