@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import static ui.EscapeSequences.*;
+import static ui.State.*;
 
 public class ChessClient {
     private AuthData user = null;
@@ -24,7 +25,7 @@ public class ChessClient {
     private final ServerFacade server;
     private WebSocketFacade ws;
     private final NotificationHandler notificationHandler;
-    private State state = State.LOGGEDOUT;
+    private State state = LOGGEDOUT;
     private final HashMap<Integer, Integer> gameMap;
 
 
@@ -65,9 +66,7 @@ public class ChessClient {
         if (params.length == 3) {
             server.register(new UserData(params[0], params[1], params[2]));
             user = server.login(new LoginRequest(params[0], params[1]));
-            state = State.LOGGEDIN;
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
-            // TODO
+            state = LOGGEDIN;
             return String.format("%s has been logged in!", user.username());
         }
         throw new ClientException(400, "Expected: <username> <password> <email>");
@@ -76,9 +75,7 @@ public class ChessClient {
     public String login(String... params) throws ClientException {
         if (params.length == 2) {
             user = server.login(new LoginRequest(params[0], params[1]));
-            state = State.LOGGEDIN;
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
-            // TODO
+            state = LOGGEDIN;
             return String.format("%s has been logged in!", user.username());
         }
         throw new ClientException(400, "Expected: <username> <password>");
@@ -134,6 +131,8 @@ public class ChessClient {
             updateGameMap();
             int gameID = getGameID(params[0]);
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            state = INGAME;
             printGame(true);
             printGame(false);
             return "";
@@ -155,7 +154,7 @@ public class ChessClient {
 
     public String logout() throws ClientException {
         assertLoggedIn();
-        state = State.LOGGEDOUT;
+        state = LOGGEDOUT;
         server.logout(user.authToken());
         String result = String.format("%s has been logged out.", user.username());
         user = null;
@@ -163,7 +162,7 @@ public class ChessClient {
     }
 
     public String help() {
-        if (state == State.LOGGEDOUT) {
+        if (state == LOGGEDOUT) {
             return """
                     register <username> <password> <email> - creates an account
                     login <username> <password> - log into your account
@@ -171,14 +170,25 @@ public class ChessClient {
                     help - lists possible commands
                     """;
         }
-        return """
-                create <name> - creates a new game
-                list - lists games
-                join <id> <BLACK|WHITE> - join a game as the specified team
-                observe <id> -  observe a game
-                logout - logout of your account
-                help - lists possible commands
-                """;
+        if (state == LOGGEDIN) {
+            return """
+                    create <name> - creates a new game
+                    list - lists games
+                    join <id> <BLACK|WHITE> - join a game as the specified team
+                    observe <id> -  observe a game
+                    logout - logout of your account
+                    help - lists possible commands
+                    """;
+        } else {
+            return """
+                    redraw
+                    leave
+                    move
+                    resign
+                    highlight
+                    help - lists possible commands
+                    """;
+        }
     }
 
     private void updateGameMap() throws ClientException {
@@ -204,13 +214,13 @@ public class ChessClient {
     }
 
     private void assertLoggedIn() throws ClientException {
-        if (state == State.LOGGEDOUT) {
+        if (state == LOGGEDOUT) {
             throw new ClientException(400, "You must sign in first!");
         }
     }
 
     private void assertLoggedOut() throws ClientException {
-        if (state == State.LOGGEDIN) {
+        if (state == LOGGEDIN) {
             throw new ClientException(400, "You must sign out first!");
         }
     }
