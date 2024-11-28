@@ -9,7 +9,10 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
+import java.io.IOException;
 import java.net.URI;
+
+import static websocket.commands.UserGameCommand.CommandType.CONNECT;
 
 public class WebSocketFacade extends Endpoint {
     private Session session;
@@ -35,6 +38,15 @@ public class WebSocketFacade extends Endpoint {
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
+
+    public void sendConnect(String authToken, int gameID) throws ClientException {
+        try {
+            UserGameCommand command = new UserGameCommand(CONNECT, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ClientException(500, ex.getMessage());
+        }
     }
 
     private ServerMessage deserializeMessage(String message) {

@@ -10,20 +10,20 @@ import websocket.messages.ServerMessage;
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-    public void add(String username, Session session) {
-        var connection = new Connection(username, session);
-        connections.put(username, connection);
+    public void add(String authToken, Session session) {
+        var connection = new Connection(authToken, session);
+        connections.put(authToken, connection);
     }
 
     public void remove(String username) {
         connections.remove(username);
     }
 
-    public void broadcast(String rootUser, ServerMessage notification) throws IOException {
+    public void broadcast(String rootUserAuthToken, ServerMessage notification) throws IOException {
         ArrayList<Connection> oldConnections = new ArrayList<Connection>();
         for (Connection conn : connections.values()) {
             if (conn.session.isOpen()) {
-                if (!conn.username.equals(rootUser)) {
+                if (!conn.authToken.equals(rootUserAuthToken)) {
                     conn.send(notification.toString());
                 }
             } else {
@@ -32,7 +32,7 @@ public class ConnectionManager {
         }
 
         for (Connection conn : oldConnections) {
-            connections.remove(conn.username);
+            connections.remove(conn.authToken);
         }
     }
 }

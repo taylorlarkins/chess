@@ -53,6 +53,11 @@ public class ChessClient {
             case "join" -> join(params);
             case "observe" -> observe(params);
             case "logout" -> logout();
+            case "redraw" -> redraw();
+            case "leave" -> leave();
+            case "move" -> move(params);
+            case "resign" -> resign();
+            case "highlight" -> highlight(params);
             default -> help();
         };
     }
@@ -133,8 +138,9 @@ public class ChessClient {
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
-            printGame(true);
-            printGame(false);
+            ws.sendConnect(user.authToken(), gameID);
+            //printGame(true);
+            //printGame(false);
             return "";
         }
         throw new ClientException(400, "Expected: <id> <BLACK|WHITE>");
@@ -144,9 +150,44 @@ public class ChessClient {
         assertLoggedIn();
         if (params.length == 1) {
             getGameID(params[0]);
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            state = INGAME;
             printGame(true);
             printGame(false);
             return "";
+        } else {
+            throw new ClientException(400, "Expected: <id>");
+        }
+    }
+
+    public String redraw() throws ClientException {
+        assertInGame();
+        return "Not implemented!";
+    }
+
+    public String leave() throws ClientException {
+        assertInGame();
+        return "Not implemented!";
+    }
+
+    public String move(String... params) throws ClientException {
+        assertInGame();
+        if (params.length == 2) {
+            return "Not implemented!";
+        } else {
+            throw new ClientException(400, "Expected: <id>");
+        }
+    }
+
+    public String resign() throws ClientException {
+        assertInGame();
+        return "Not implemented!";
+    }
+
+    public String highlight(String... params) throws ClientException {
+        assertInGame();
+        if (params.length == 1) {
+            return "Not implemented!";
         } else {
             throw new ClientException(400, "Expected: <id>");
         }
@@ -179,16 +220,15 @@ public class ChessClient {
                     logout - logout of your account
                     help - lists possible commands
                     """;
-        } else {
-            return """
-                    redraw
-                    leave
-                    move
-                    resign
-                    highlight
-                    help - lists possible commands
-                    """;
         }
+        return """
+                redraw - redraws the game board
+                leave - exit the game
+                move <start square> <end square> - move a piece
+                resign - forfeit the game
+                highlight <start square> - highlights legal moves
+                help - lists possible commands
+                """;
     }
 
     private void updateGameMap() throws ClientException {
@@ -214,14 +254,26 @@ public class ChessClient {
     }
 
     private void assertLoggedIn() throws ClientException {
-        if (state == LOGGEDOUT) {
+        if (state != LOGGEDIN) {
+            if (state == INGAME) {
+                throw new ClientException(400, "You must leave the current game to do that!");
+            }
             throw new ClientException(400, "You must sign in first!");
         }
     }
 
     private void assertLoggedOut() throws ClientException {
-        if (state == LOGGEDIN) {
+        if (state != LOGGEDOUT) {
             throw new ClientException(400, "You must sign out first!");
+        }
+    }
+
+    private void assertInGame() throws ClientException {
+        if (state != INGAME) {
+            if (state == LOGGEDIN) {
+                throw new ClientException(400, "You must be in a game to do that!");
+            }
+            throw new ClientException(400, "You must sign in first!");
         }
     }
 

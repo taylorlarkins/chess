@@ -15,14 +15,14 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message) {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
-            case CONNECT -> connect();
+            case CONNECT -> connect(session, command);
             case LEAVE -> leave();
             case RESIGN -> resign();
         }
     }
 
-    private void connect() {
-
+    private void connect(Session session, UserGameCommand command) {
+        connections.add(command.getAuthToken(), session);
     }
 
     private void leave() {
