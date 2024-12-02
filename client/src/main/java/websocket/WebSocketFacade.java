@@ -27,9 +27,12 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage notification = deserializeMessage(message);
-                notificationHandler.notify(notification);
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    ServerMessage notification = deserializeMessage(message);
+                    notificationHandler.notify(notification);
+                }
             });
         } catch (Exception ex) {
             throw new ClientException(500, ex.getMessage());

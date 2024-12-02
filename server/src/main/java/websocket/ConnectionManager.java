@@ -8,6 +8,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
 public class ConnectionManager {
+    // CHANGE TO BE BASED OFF OF GAME ID
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
     public void add(String authToken, Session session) {
@@ -20,7 +21,7 @@ public class ConnectionManager {
     }
 
     public void broadcast(String rootUserAuthToken, ServerMessage notification) throws IOException {
-        ArrayList<Connection> oldConnections = new ArrayList<Connection>();
+        ArrayList<Connection> oldConnections = new ArrayList<>();
         for (Connection conn : connections.values()) {
             if (conn.session.isOpen()) {
                 if (!conn.authToken.equals(rootUserAuthToken)) {

@@ -149,11 +149,12 @@ public class ChessClient {
     public String observe(String... params) throws ClientException {
         assertLoggedIn();
         if (params.length == 1) {
-            getGameID(params[0]);
+            int gameID = getGameID(params[0]);
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
-            printGame(true);
-            printGame(false);
+            //printGame(true);
+            //printGame(false);
+            ws.sendConnect(user.authToken(), gameID);
             return "";
         } else {
             throw new ClientException(400, "Expected: <id>");
