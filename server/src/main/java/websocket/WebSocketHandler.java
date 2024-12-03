@@ -40,7 +40,7 @@ public class WebSocketHandler {
     }
 
     private void connect(Session session, UserGameCommand command) throws DataAccessException, IOException {
-        connections.add(command.getAuthToken(), session);
+        connections.add(command.getGameID(), command.getAuthToken(), session);
         AuthData auth = authDAO.getAuth(command.getAuthToken());
         GameData game = gameDAO.getGame(command.getGameID());
         String team = null;
@@ -55,7 +55,7 @@ public class WebSocketHandler {
         } else {
             message = String.format("%s has joined the game as %s.", auth.username(), team);
         }
-        connections.broadcast(command.getAuthToken(), new NotificationMessage(message));
+        connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
     }
 
     private void leave() {

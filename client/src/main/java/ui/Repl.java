@@ -49,7 +49,8 @@ public class Repl implements NotificationHandler {
     @Override
     public void notify(ServerMessage notification) {
         if (notification.getServerMessageType() == NOTIFICATION) {
-            System.out.println(notification.getMessage());
+            System.out.print("\n" + notification.getMessage());
+            printPrompt();
         }
     }
 }

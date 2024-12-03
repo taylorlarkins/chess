@@ -149,6 +149,7 @@ public class ChessClient {
     public String observe(String... params) throws ClientException {
         assertLoggedIn();
         if (params.length == 1) {
+            updateGameMap();
             int gameID = getGameID(params[0]);
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
