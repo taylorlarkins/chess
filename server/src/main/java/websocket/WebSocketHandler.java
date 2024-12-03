@@ -8,6 +8,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
 import java.io.IOException;
@@ -44,10 +45,12 @@ public class WebSocketHandler {
         AuthData auth = authDAO.getAuth(command.getAuthToken());
         GameData game = gameDAO.getGame(command.getGameID());
         String team = null;
+        boolean whitePerspective = true;
         if (auth.username().equals(game.whiteUsername())) {
             team = "WHITE";
         } else if (auth.username().equals(game.blackUsername())) {
             team = "BLACK";
+            whitePerspective = false;
         }
         String message;
         if (team == null) {
@@ -55,6 +58,7 @@ public class WebSocketHandler {
         } else {
             message = String.format("%s has joined the game as %s.", auth.username(), team);
         }
+        connections.inform(command.getGameID(), command.getAuthToken(), new LoadGameMessage(game.game(), whitePerspective));
         connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
     }
 

@@ -27,10 +27,6 @@ public class ServerMessage {
         return this.serverMessageType;
     }
 
-    public String getMessage() {
-        return "Something has taken place";
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

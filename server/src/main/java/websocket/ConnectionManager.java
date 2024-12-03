@@ -2,7 +2,6 @@ package websocket;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jetty.websocket.api.Session;
@@ -42,5 +41,10 @@ public class ConnectionManager {
         if (gameConnections.isEmpty()) {
             connections.remove(gameID);
         }
+    }
+
+    public void inform(Integer gameID, String rootUserAuthToken, ServerMessage notification) throws IOException {
+        Connection conn = connections.get(gameID).get(rootUserAuthToken);
+        conn.send(notification.toString());
     }
 }
