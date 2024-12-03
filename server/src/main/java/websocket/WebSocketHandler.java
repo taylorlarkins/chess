@@ -35,7 +35,7 @@ public class WebSocketHandler {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> connect(session, command);
-            case LEAVE -> leave();
+            case LEAVE -> leave(command);
             case RESIGN -> resign();
         }
     }
@@ -62,8 +62,28 @@ public class WebSocketHandler {
         connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
     }
 
-    private void leave() {
-
+    private void leave(UserGameCommand command) throws DataAccessException, IOException {
+        String username = authDAO.getAuth(command.getAuthToken()).username();
+        GameData game = gameDAO.getGame(command.getGameID());
+        String whiteUser = game.whiteUsername();
+        String blackUser = game.blackUsername();
+        if (username.equals(whiteUser)) {
+            whiteUser = null;
+        }
+        if (username.equals(blackUser)) {
+            blackUser = null;
+        }
+        GameData updatedGame = new GameData(
+                game.gameID(),
+                whiteUser,
+                blackUser,
+                game.gameName(),
+                game.game()
+        );
+        gameDAO.updateGame(updatedGame);
+        connections.remove(command.getGameID(), command.getAuthToken());
+        String message = String.format("%s has left the game.", username);
+        connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
     }
 
     private void resign() {

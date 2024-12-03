@@ -21,6 +21,7 @@ public class ChessClient {
     private WebSocketFacade ws;
     private final NotificationHandler notificationHandler;
     private State state = LOGGEDOUT;
+    private Integer currentGameID = null;
     private final HashMap<Integer, Integer> gameMap;
 
 
@@ -134,8 +135,7 @@ public class ChessClient {
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
             ws.sendConnect(user.authToken(), gameID);
-            //printGame(true);
-            //printGame(false);
+            currentGameID = gameID;
             return "";
         }
         throw new ClientException(400, "Expected: <id> <BLACK|WHITE>");
@@ -148,9 +148,8 @@ public class ChessClient {
             int gameID = getGameID(params[0]);
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
-            //printGame(true);
-            //printGame(false);
             ws.sendConnect(user.authToken(), gameID);
+            currentGameID = gameID;
             return "";
         } else {
             throw new ClientException(400, "Expected: <id>");
@@ -164,7 +163,10 @@ public class ChessClient {
 
     public String leave() throws ClientException {
         assertInGame();
-        return "Not implemented!";
+        ws.sendLeave(user.authToken(), currentGameID);
+        state = LOGGEDIN;
+        currentGameID = null;
+        return "";
     }
 
     public String move(String... params) throws ClientException {
