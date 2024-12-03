@@ -5,6 +5,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import websocket.NotificationHandler;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -27,7 +28,7 @@ public class Repl implements NotificationHandler {
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
-        var result = "";
+        String result = "";
         while (!result.equals("Goodbye!")) {
             printPrompt();
             String line = scanner.nextLine();
@@ -55,14 +56,18 @@ public class Repl implements NotificationHandler {
     @Override
     public void notify(ServerMessage notification) {
         if (notification.getServerMessageType() == NOTIFICATION) {
-            ;
             NotificationMessage notificationMessage = (NotificationMessage) notification;
             System.out.print("\n" + notificationMessage.getMessage());
+            printPrompt();
         } else if (notification.getServerMessageType() == LOAD_GAME) {
             LoadGameMessage loadGameMessage = (LoadGameMessage) notification;
             System.out.println();
             ChessGame game = loadGameMessage.getChessGame();
             printGame(game.getBoard(), loadGameMessage.whitePerspective());
+            printPrompt();
+        } else {
+            ErrorMessage errorMessage = (ErrorMessage) notification;
+            System.out.print("\n" + SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
         }
     }
 

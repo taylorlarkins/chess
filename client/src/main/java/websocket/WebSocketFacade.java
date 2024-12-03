@@ -1,7 +1,9 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import ui.ClientException;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -12,8 +14,7 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 
-import static websocket.commands.UserGameCommand.CommandType.CONNECT;
-import static websocket.commands.UserGameCommand.CommandType.LEAVE;
+import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
     private Session session;
@@ -57,6 +58,24 @@ public class WebSocketFacade extends Endpoint {
     public void sendLeave(String authToken, int gameID) throws ClientException {
         try {
             UserGameCommand command = new UserGameCommand(LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ClientException(500, ex.getMessage());
+        }
+    }
+
+    public void sendResign(String authToken, int gameID) throws ClientException {
+        try {
+            UserGameCommand command = new UserGameCommand(RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ClientException(500, ex.getMessage());
+        }
+    }
+
+    public void sendMakeMove(String authToken, int gameID, ChessMove move) throws ClientException {
+        try {
+            UserGameCommand command = new MakeMoveCommand(MAKE_MOVE, authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ClientException(500, ex.getMessage());

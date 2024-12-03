@@ -1,5 +1,8 @@
 package ui;
 
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -12,6 +15,8 @@ import websocket.WebSocketFacade;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static ui.Role.OBSERVER;
+import static ui.Role.PLAYER;
 import static ui.State.*;
 
 public class ChessClient {
@@ -21,6 +26,7 @@ public class ChessClient {
     private WebSocketFacade ws;
     private final NotificationHandler notificationHandler;
     private State state = LOGGEDOUT;
+    private Role role = null;
     private Integer currentGameID = null;
     private final HashMap<Integer, Integer> gameMap;
 
@@ -134,6 +140,7 @@ public class ChessClient {
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
+            role = PLAYER;
             ws.sendConnect(user.authToken(), gameID);
             currentGameID = gameID;
             return "";
@@ -148,6 +155,7 @@ public class ChessClient {
             int gameID = getGameID(params[0]);
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
+            role = OBSERVER;
             ws.sendConnect(user.authToken(), gameID);
             currentGameID = gameID;
             return "";
@@ -165,22 +173,33 @@ public class ChessClient {
         assertInGame();
         ws.sendLeave(user.authToken(), currentGameID);
         state = LOGGEDIN;
+        role = null;
         currentGameID = null;
         return "";
     }
 
     public String move(String... params) throws ClientException {
         assertInGame();
-        if (params.length == 2) {
-            return "Not implemented!";
+        assertPlayer();
+        if (params.length == 2 || params.length == 3) {
+            ChessPosition start = convertNotationToPosition(params[0]);
+            ChessPosition end = convertNotationToPosition(params[1]);
+            ChessPiece.PieceType promotion = null;
+            if (params.length == 3) {
+                promotion = getPromotion(params[2]);
+            }
+            ws.sendMakeMove(user.authToken(), currentGameID, new ChessMove(start, end, promotion));
+            return "";
         } else {
-            throw new ClientException(400, "Expected: <id>");
+            throw new ClientException(400, "Expected: <start square> <end square>");
         }
     }
 
     public String resign() throws ClientException {
         assertInGame();
-        return "Not implemented!";
+        assertPlayer();
+        ws.sendResign(user.authToken(), currentGameID);
+        return "";
     }
 
     public String highlight(String... params) throws ClientException {
@@ -223,7 +242,7 @@ public class ChessClient {
         return """
                 redraw - redraws the game board
                 leave - exit the game
-                move <start square> <end square> - move a piece
+                move <start square> <end square> <promotion: Q|R|B|N> - move a piece
                 resign - forfeit the game
                 highlight <start square> - highlights legal moves
                 help - lists possible commands
@@ -236,6 +255,34 @@ public class ChessClient {
         for (int i = 1; i <= games.length; i++) {
             gameMap.put(i, games[i - 1].gameID());
         }
+    }
+
+    private ChessPosition convertNotationToPosition(String notation) throws ClientException {
+        char fileChar = Character.toLowerCase(notation.charAt(0));
+        int file = switch (fileChar) {
+            case 'a' -> 1;
+            case 'b' -> 2;
+            case 'c' -> 3;
+            case 'd' -> 4;
+            case 'e' -> 5;
+            case 'f' -> 6;
+            case 'g' -> 7;
+            case 'h' -> 8;
+            default -> throw new ClientException(400, "Expected: <start square> <end square>");
+        };
+        int rank = notation.charAt(1) - '0';
+        return new ChessPosition(rank, file);
+    }
+
+    private ChessPiece.PieceType getPromotion(String option) throws ClientException {
+        char proposal = Character.toUpperCase(option.charAt(0));
+        return switch (proposal) {
+            case 'Q' -> ChessPiece.PieceType.QUEEN;
+            case 'R' -> ChessPiece.PieceType.ROOK;
+            case 'N' -> ChessPiece.PieceType.KNIGHT;
+            case 'B' -> ChessPiece.PieceType.BISHOP;
+            default -> throw new ClientException(400, "Expected: <start square> <end square> <promotion: Q|R|B|N>");
+        };
     }
 
     private int getGameID(String input) throws ClientException {
@@ -273,6 +320,12 @@ public class ChessClient {
                 throw new ClientException(400, "You must be in a game to do that!");
             }
             throw new ClientException(400, "You must sign in first!");
+        }
+    }
+
+    private void assertPlayer() throws ClientException {
+        if (role != PLAYER) {
+            throw new ClientException(400, "You must be a player to do that!");
         }
     }
 }
