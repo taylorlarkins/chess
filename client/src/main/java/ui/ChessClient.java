@@ -33,7 +33,7 @@ public class ChessClient {
     private State state = LOGGEDOUT;
     private Role role = null;
     private Integer currentGameID = null;
-    private GamePrinter gamePrinter;
+    private final GamePrinter gamePrinter;
     private final HashMap<Integer, Integer> gameMap;
     private GameDAO gameDAO;
 

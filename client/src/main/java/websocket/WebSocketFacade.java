@@ -17,14 +17,12 @@ import java.net.URI;
 import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
-    private Session session;
-    private NotificationHandler notificationHandler;
+    private final Session session;
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ClientException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
-            this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);

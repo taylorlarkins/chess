@@ -2,7 +2,6 @@ package websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
-import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
@@ -16,10 +15,8 @@ import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import static websocket.commands.UserGameCommand.CommandType.MAKE_MOVE;
 
