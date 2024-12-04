@@ -107,10 +107,19 @@ public class WebSocketHandler {
     }
 
     private void resign(UserGameCommand command) throws DataAccessException, IOException {
+        GameData gameData = gameDAO.getGame(command.getGameID());
         String username = authDAO.getAuth(command.getAuthToken()).username();
-        String message = String.format("%s has resigned!", username);
-        connections.inform(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
-        connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
+        if (gameData.game().isOver()) {
+            connections.inform(command.getGameID(), command.getAuthToken(), new ErrorMessage("Error: this game has already ended!"));
+        } else if (username.equals(gameData.whiteUsername()) || username.equals(gameData.blackUsername())) {
+            gameData.game().setOver(true);
+            gameDAO.updateGame(gameData);
+            String message = String.format("%s has resigned!", username);
+            connections.inform(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
+            connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
+        } else {
+            connections.inform(command.getGameID(), command.getAuthToken(), new ErrorMessage("Error: you must be a player to resign!"));
+        }
     }
 
     private void makeMove(MakeMoveCommand command, Session session) throws DataAccessException, IOException {
@@ -121,6 +130,8 @@ public class WebSocketHandler {
             connections.inform(command.getGameID(), command.getAuthToken(), new ErrorMessage("Error: unauthorized."));
         } else if (gameData == null) {
             connections.inform(command.getGameID(), command.getAuthToken(), new ErrorMessage("Error: invalid game id."));
+        } else if (gameData.game().isOver()) {
+            connections.inform(command.getGameID(), command.getAuthToken(), new ErrorMessage("Error: the game is over!"));
         } else {
             ChessGame game = gameData.game();
             ChessMove move = command.getMove();
@@ -151,9 +162,11 @@ public class WebSocketHandler {
                     if (game.isInCheckmate(opposingColor)) {
                         message = String.format("%s is in checkmate! Good game!", opposingUsername);
                         additionalNotification = new NotificationMessage(message);
+                        game.setOver(true);
                     } else if (game.isInStalemate(opposingColor)) {
                         message = "Stalemate! The game is over!";
                         additionalNotification = new NotificationMessage(message);
+                        game.setOver(true);
                     } else if (game.isInCheck(opposingColor)) {
                         message = String.format("%s is in check!", opposingUsername);
                         additionalNotification = new NotificationMessage(message);

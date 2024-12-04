@@ -14,6 +14,7 @@ public class ChessGame {
     private ChessBoard board;
     private ChessPosition whiteKingLoc;
     private ChessPosition blackKingLoc;
+    private boolean isOver = false;
 
     public ChessGame() {
         turn = TeamColor.WHITE;
@@ -37,6 +38,14 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         turn = team;
+    }
+
+    public boolean isOver() {
+        return isOver;
+    }
+
+    public void setOver(boolean over) {
+        isOver = over;
     }
 
     /**
