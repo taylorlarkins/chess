@@ -72,15 +72,7 @@ public class GamePrinter {
                 System.out.print(SET_BG_COLOR_LIGHT_GREY + perspective);
                 System.out.print(" " + row + " " + RESET_BG_COLOR);
                 for (int col = 1; col <= 8; col++) {
-                    ChessPosition candidatePosition = new ChessPosition(row, col);
-                    if (candidatePosition.equals(highlightingSource)) {
-                        System.out.print(SET_BG_COLOR_YELLOW);
-                    } else if (validEndPositions.contains(candidatePosition)) {
-                        System.out.print(highlightColors[(col + row) % 2]);
-                    } else {
-                        System.out.print(checkerColors[(col + row) % 2]);
-                    }
-                    System.out.print(" " + getPiece(board, row, col) + " ");
+                    printSquareWithHighlighting(row, col, validEndPositions, board, highlightingSource);
                 }
                 System.out.println(SET_BG_COLOR_LIGHT_GREY + perspective + " " + row + " " + RESET_BG_COLOR);
             }
@@ -89,19 +81,25 @@ public class GamePrinter {
                 System.out.print(SET_BG_COLOR_LIGHT_GREY + perspective);
                 System.out.print(" " + row + " " + RESET_BG_COLOR);
                 for (int col = 8; col >= 1; col--) {
-                    ChessPosition candidatePosition = new ChessPosition(row, col);
-                    if (candidatePosition.equals(highlightingSource)) {
-                        System.out.print(SET_BG_COLOR_YELLOW);
-                    } else if (validEndPositions.contains(candidatePosition)) {
-                        System.out.print(highlightColors[(col + row) % 2]);
-                    } else {
-                        System.out.print(checkerColors[(col + row) % 2]);
-                    }
-                    System.out.print(" " + getPiece(board, row, col) + " ");
+                    printSquareWithHighlighting(row, col, validEndPositions, board, highlightingSource);
                 }
                 System.out.println(SET_BG_COLOR_LIGHT_GREY + perspective + " " + row + " " + RESET_BG_COLOR);
             }
         }
+    }
+
+    private void printSquareWithHighlighting(int row, int col,
+                                             HashSet<ChessPosition> validEndPositions, ChessBoard board,
+                                             ChessPosition highlightingSource) {
+        ChessPosition candidatePosition = new ChessPosition(row, col);
+        if (candidatePosition.equals(highlightingSource)) {
+            System.out.print(SET_BG_COLOR_YELLOW);
+        } else if (validEndPositions.contains(candidatePosition)) {
+            System.out.print(highlightColors[(col + row) % 2]);
+        } else {
+            System.out.print(checkerColors[(col + row) % 2]);
+        }
+        System.out.print(" " + getPiece(board, row, col) + " ");
     }
 
     private String getPiece(ChessBoard board, int row, int col) {

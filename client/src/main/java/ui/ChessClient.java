@@ -20,6 +20,7 @@ import static ui.Role.OBSERVER;
 import static ui.Role.WHITE_PLAYER;
 import static ui.Role.BLACK_PLAYER;
 import static ui.State.*;
+import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class ChessClient {
     private AuthData user = null;
@@ -149,7 +150,7 @@ public class ChessClient {
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
-            ws.sendConnect(user.authToken(), gameID);
+            ws.sendGeneralCommand(user.authToken(), gameID, CONNECT);
             if (params[1].equalsIgnoreCase("WHITE")) {
                 role = WHITE_PLAYER;
             } else {
@@ -169,7 +170,7 @@ public class ChessClient {
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
             role = OBSERVER;
-            ws.sendConnect(user.authToken(), gameID);
+            ws.sendGeneralCommand(user.authToken(), gameID, CONNECT);
             currentGameID = gameID;
             return "";
         } else {
@@ -186,7 +187,7 @@ public class ChessClient {
 
     public String leave() throws ClientException {
         assertInGame();
-        ws.sendLeave(user.authToken(), currentGameID);
+        ws.sendGeneralCommand(user.authToken(), currentGameID, LEAVE);
         state = LOGGEDIN;
         role = null;
         currentGameID = null;
@@ -213,7 +214,7 @@ public class ChessClient {
     public String resign() throws ClientException {
         assertInGame();
         assertPlayer();
-        ws.sendResign(user.authToken(), currentGameID);
+        ws.sendGeneralCommand(user.authToken(), currentGameID, RESIGN);
         return "";
     }
 
