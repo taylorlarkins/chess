@@ -1,12 +1,9 @@
 package ui;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.SQLGameDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -35,7 +32,7 @@ public class ChessClient {
     private Integer currentGameID = null;
     private final GamePrinter gamePrinter;
     private final HashMap<Integer, Integer> gameMap;
-    private GameDAO gameDAO;
+    private ChessGame lastLoadedGame = null;
 
 
     public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
@@ -44,11 +41,6 @@ public class ChessClient {
         server = new ServerFacade(this.serverUrl);
         gameMap = new HashMap<>();
         gamePrinter = new GamePrinter();
-        try {
-            gameDAO = new SQLGameDAO();
-        } catch (DataAccessException ex) {
-            gameDAO = new MemoryGameDAO();
-        }
     }
 
     public State getState() {
@@ -187,12 +179,9 @@ public class ChessClient {
 
     public String redraw() throws ClientException {
         assertInGame();
-        try {
-            gamePrinter.printGame(gameDAO.getGame(currentGameID).game(), role, null);
-            return "";
-        } catch (DataAccessException ex) {
-            throw new ClientException(500, "Unable to retrieve board. Try again later.");
-        }
+        gamePrinter.printGame(lastLoadedGame, role, null);
+        return "";
+
     }
 
     public String leave() throws ClientException {
@@ -231,13 +220,9 @@ public class ChessClient {
     public String highlight(String... params) throws ClientException {
         assertInGame();
         if (params.length == 1) {
-            try {
-                ChessPosition positionInQuestion = convertNotationToPosition(params[0]);
-                gamePrinter.printGame(gameDAO.getGame(currentGameID).game(), role, positionInQuestion);
-                return "";
-            } catch (DataAccessException ex) {
-                throw new ClientException(500, "Unable to retrieve board. Try again later.");
-            }
+            ChessPosition positionInQuestion = convertNotationToPosition(params[0]);
+            gamePrinter.printGame(lastLoadedGame, role, positionInQuestion);
+            return "";
         } else {
             throw new ClientException(400, "Expected: <id>");
         }
@@ -279,6 +264,10 @@ public class ChessClient {
                 highlight <start square> - highlights legal moves
                 help - lists possible commands
                 """;
+    }
+
+    public void setLastLoadedGame(ChessGame game) {
+        lastLoadedGame = game;
     }
 
     private void updateGameMap() throws ClientException {

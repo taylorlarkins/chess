@@ -62,6 +62,7 @@ public class Repl implements NotificationHandler {
             LoadGameMessage loadGameMessage = (LoadGameMessage) notification;
             System.out.println();
             ChessGame game = loadGameMessage.getChessGame();
+            client.setLastLoadedGame(game);
             gamePrinter.printGame(game, client.getRole(), null);
             printPrompt();
         } else {
