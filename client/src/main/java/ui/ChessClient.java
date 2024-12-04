@@ -3,6 +3,10 @@ package ui;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
+import dataaccess.MemoryGameDAO;
+import dataaccess.SQLGameDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -29,7 +33,9 @@ public class ChessClient {
     private State state = LOGGEDOUT;
     private Role role = null;
     private Integer currentGameID = null;
+    private GamePrinter gamePrinter;
     private final HashMap<Integer, Integer> gameMap;
+    private GameDAO gameDAO;
 
 
     public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
@@ -37,6 +43,12 @@ public class ChessClient {
         this.notificationHandler = notificationHandler;
         server = new ServerFacade(this.serverUrl);
         gameMap = new HashMap<>();
+        gamePrinter = new GamePrinter();
+        try {
+            gameDAO = new SQLGameDAO();
+        } catch (DataAccessException ex) {
+            gameDAO = new MemoryGameDAO();
+        }
     }
 
     public State getState() {
@@ -175,7 +187,12 @@ public class ChessClient {
 
     public String redraw() throws ClientException {
         assertInGame();
-        return "Not implemented!";
+        try {
+            gamePrinter.printGame(gameDAO.getGame(currentGameID).game().getBoard(), role);
+            return "";
+        } catch (DataAccessException ex) {
+            throw new ClientException(500, "Unable to retrieve board. Try again later.");
+        }
     }
 
     public String leave() throws ClientException {
