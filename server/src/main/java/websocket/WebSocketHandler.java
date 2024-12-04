@@ -55,6 +55,20 @@ public class WebSocketHandler {
         connections.add(command.getGameID(), command.getAuthToken(), session);
         AuthData auth = authDAO.getAuth(command.getAuthToken());
         GameData game = gameDAO.getGame(command.getGameID());
+        if (auth == null) {
+            connections.inform(command.getGameID(), command.getAuthToken(), new ErrorMessage("Error: unauthorized."));
+            connections.remove(command.getGameID(), command.getAuthToken());
+        } else if (game == null) {
+            connections.inform(command.getGameID(), command.getAuthToken(), new ErrorMessage("Error: invalid game id."));
+            connections.remove(command.getGameID(), command.getAuthToken());
+        } else {
+            String message = getMessage(auth, game);
+            connections.inform(command.getGameID(), command.getAuthToken(), new LoadGameMessage(game.game()));
+            connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
+        }
+    }
+
+    private String getMessage(AuthData auth, GameData game) {
         String team = null;
         if (auth.username().equals(game.whiteUsername())) {
             team = "WHITE";
@@ -67,8 +81,7 @@ public class WebSocketHandler {
         } else {
             message = String.format("%s has joined the game as %s.", auth.username(), team);
         }
-        connections.inform(command.getGameID(), command.getAuthToken(), new LoadGameMessage(game.game()));
-        connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
+        return message;
     }
 
     private void leave(UserGameCommand command) throws DataAccessException, IOException {
