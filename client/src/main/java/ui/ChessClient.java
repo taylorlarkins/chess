@@ -157,7 +157,7 @@ public class ChessClient {
                 role = BLACK_PLAYER;
             }
             currentGameID = gameID;
-            return "";
+            return null;
         }
         throw new ClientException(400, "Expected: <id> <BLACK|WHITE>");
     }
@@ -172,7 +172,7 @@ public class ChessClient {
             role = OBSERVER;
             ws.sendGeneralCommand(user.authToken(), gameID, CONNECT);
             currentGameID = gameID;
-            return "";
+            return null;
         } else {
             throw new ClientException(400, "Expected: <id>");
         }
@@ -205,7 +205,7 @@ public class ChessClient {
                 promotion = getPromotion(params[2]);
             }
             ws.sendMakeMove(user.authToken(), currentGameID, new ChessMove(start, end, promotion));
-            return "";
+            return null;
         } else {
             throw new ClientException(400, "Expected: <start square> <end square>");
         }
@@ -215,7 +215,7 @@ public class ChessClient {
         assertInGame();
         assertPlayer();
         ws.sendGeneralCommand(user.authToken(), currentGameID, RESIGN);
-        return "";
+        return null;
     }
 
     public String highlight(String... params) throws ClientException {

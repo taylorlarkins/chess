@@ -28,15 +28,19 @@ public class Repl implements NotificationHandler {
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
-        while (!result.equals("Goodbye!")) {
-            printPrompt();
+        printPrompt();
+        while (!"Goodbye!".equals(result)) {
             String line = scanner.nextLine();
             try {
                 result = client.eval(line);
-                System.out.print(result);
+                if (result != null) {
+                    System.out.print(result);
+                    printPrompt();
+                }
             } catch (Throwable e) {
                 var msg = e.getMessage();
                 System.out.print(SET_TEXT_COLOR_RED + msg + RESET_TEXT_COLOR);
+                printPrompt();
             }
         }
         System.out.println();
@@ -67,7 +71,8 @@ public class Repl implements NotificationHandler {
             printPrompt();
         } else {
             ErrorMessage errorMessage = (ErrorMessage) notification;
-            System.out.print("\n" + SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
+            System.out.print(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
+            printPrompt();
         }
     }
 }
