@@ -36,8 +36,8 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        char[] fileLabels = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-        return fileLabels[row - 1] + String.valueOf(col);
+        String[] fileLabels = {"a", "b", "c", "d", "e", "f", "g", "h"};
+        return fileLabels[col - 1] + row;
     }
 
     @Override
