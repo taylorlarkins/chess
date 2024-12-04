@@ -15,6 +15,7 @@ import websocket.WebSocketFacade;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Scanner;
 
 import static ui.Role.OBSERVER;
 import static ui.Role.WHITE_PLAYER;
@@ -214,8 +215,20 @@ public class ChessClient {
     public String resign() throws ClientException {
         assertInGame();
         assertPlayer();
-        ws.sendGeneralCommand(user.authToken(), currentGameID, RESIGN);
+        if (confirmResign()) {
+            ws.sendGeneralCommand(user.authToken(), currentGameID, RESIGN);
+        } else {
+            System.out.println("The game continues!");
+        }
         return null;
+    }
+
+    public boolean confirmResign() {
+        System.out.println("Are you sure (y/n)? >>> ");
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        return line.equalsIgnoreCase("y");
+
     }
 
     public String highlight(String... params) throws ClientException {
