@@ -188,7 +188,7 @@ public class ChessClient {
     public String redraw() throws ClientException {
         assertInGame();
         try {
-            gamePrinter.printGame(gameDAO.getGame(currentGameID).game().getBoard(), role);
+            gamePrinter.printGame(gameDAO.getGame(currentGameID).game(), role, null);
             return "";
         } catch (DataAccessException ex) {
             throw new ClientException(500, "Unable to retrieve board. Try again later.");
@@ -231,7 +231,13 @@ public class ChessClient {
     public String highlight(String... params) throws ClientException {
         assertInGame();
         if (params.length == 1) {
-            return "Not implemented!";
+            try {
+                ChessPosition positionInQuestion = convertNotationToPosition(params[0]);
+                gamePrinter.printGame(gameDAO.getGame(currentGameID).game(), role, positionInQuestion);
+                return "";
+            } catch (DataAccessException ex) {
+                throw new ClientException(500, "Unable to retrieve board. Try again later.");
+            }
         } else {
             throw new ClientException(400, "Expected: <id>");
         }
