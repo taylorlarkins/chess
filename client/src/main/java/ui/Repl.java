@@ -63,7 +63,7 @@ public class Repl implements NotificationHandler {
             LoadGameMessage loadGameMessage = (LoadGameMessage) notification;
             System.out.println();
             ChessGame game = loadGameMessage.getChessGame();
-            printGame(game.getBoard(), loadGameMessage.whitePerspective());
+            printGame(game.getBoard(), client.getRole());
             printPrompt();
         } else {
             ErrorMessage errorMessage = (ErrorMessage) notification;
@@ -71,15 +71,17 @@ public class Repl implements NotificationHandler {
         }
     }
 
-    private void printGame(ChessBoard board, boolean whitePerspective) {
+    private void printGame(ChessBoard board, Role role) {
         String perspective;
         String fileLabels;
-        if (whitePerspective) {
+        boolean whitePerspective = true;
+        if (role == Role.WHITE_PLAYER || role == Role.OBSERVER) {
             perspective = SET_TEXT_COLOR_WHITE;
             fileLabels = "    a  b  c  d  e  f  g  h    ";
         } else {
             perspective = SET_TEXT_COLOR_BLACK;
             fileLabels = "    h  g  f  e  d  c  b  a    ";
+            whitePerspective = false;
         }
         System.out.print(perspective + SET_TEXT_BOLD + SET_BG_COLOR_LIGHT_GREY);
         System.out.println(SET_BG_COLOR_LIGHT_GREY + fileLabels + RESET_BG_COLOR);

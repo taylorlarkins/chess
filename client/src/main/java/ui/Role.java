@@ -1,6 +1,7 @@
 package ui;
 
 public enum Role {
-    PLAYER,
+    WHITE_PLAYER,
+    BLACK_PLAYER,
     OBSERVER
 }

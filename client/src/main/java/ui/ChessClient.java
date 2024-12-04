@@ -16,7 +16,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import static ui.Role.OBSERVER;
-import static ui.Role.PLAYER;
+import static ui.Role.WHITE_PLAYER;
+import static ui.Role.BLACK_PLAYER;
 import static ui.State.*;
 
 public class ChessClient {
@@ -40,6 +41,10 @@ public class ChessClient {
 
     public State getState() {
         return state;
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     public String eval(String input) throws ClientException {
@@ -140,8 +145,12 @@ public class ChessClient {
             server.joinGame(new JoinGameRequest(params[1], gameID), user.authToken());
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             state = INGAME;
-            role = PLAYER;
             ws.sendConnect(user.authToken(), gameID);
+            if (params[1].equalsIgnoreCase("WHITE")) {
+                role = WHITE_PLAYER;
+            } else {
+                role = BLACK_PLAYER;
+            }
             currentGameID = gameID;
             return "";
         }
@@ -324,7 +333,7 @@ public class ChessClient {
     }
 
     private void assertPlayer() throws ClientException {
-        if (role != PLAYER) {
+        if (role != WHITE_PLAYER && role != BLACK_PLAYER) {
             throw new ClientException(400, "You must be a player to do that!");
         }
     }

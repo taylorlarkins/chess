@@ -59,12 +59,10 @@ public class WebSocketHandler {
         AuthData auth = authDAO.getAuth(command.getAuthToken());
         GameData game = gameDAO.getGame(command.getGameID());
         String team = null;
-        boolean whitePerspective = true;
         if (auth.username().equals(game.whiteUsername())) {
             team = "WHITE";
         } else if (auth.username().equals(game.blackUsername())) {
             team = "BLACK";
-            whitePerspective = false;
         }
         String message;
         if (team == null) {
@@ -72,7 +70,7 @@ public class WebSocketHandler {
         } else {
             message = String.format("%s has joined the game as %s.", auth.username(), team);
         }
-        connections.inform(command.getGameID(), command.getAuthToken(), new LoadGameMessage(game.game(), whitePerspective));
+        connections.inform(command.getGameID(), command.getAuthToken(), new LoadGameMessage(game.game()));
         connections.broadcast(command.getGameID(), command.getAuthToken(), new NotificationMessage(message));
     }
 
@@ -132,26 +130,26 @@ public class WebSocketHandler {
         } else {
             try {
                 game.makeMove(move);
-                gameDAO.updateGame(gameData);
                 String message = String.format("%s made the following move: %s", username, move);
                 NotificationMessage moveNotification = new NotificationMessage(message);
-                connections.broadcast(command.getGameID(), command.getAuthToken(), moveNotification);
-                connections.inform(command.getGameID(), command.getAuthToken(), moveNotification);
+                NotificationMessage additionalNotification = null;
                 if (game.isInCheckmate(opposingColor)) {
                     message = String.format("%s is in checkmate! Good game!", opposingUsername);
-                    NotificationMessage checkmateNotification = new NotificationMessage(message);
-                    connections.broadcast(command.getGameID(), command.getAuthToken(), checkmateNotification);
-                    connections.inform(command.getGameID(), command.getAuthToken(), checkmateNotification);
+                    additionalNotification = new NotificationMessage(message);
                 } else if (game.isInStalemate(opposingColor)) {
                     message = "Stalemate! The game is over!";
-                    NotificationMessage stalemateNotification = new NotificationMessage(message);
-                    connections.broadcast(command.getGameID(), command.getAuthToken(), stalemateNotification);
-                    connections.inform(command.getGameID(), command.getAuthToken(), stalemateNotification);
+                    additionalNotification = new NotificationMessage(message);
                 } else if (game.isInCheck(opposingColor)) {
                     message = String.format("%s is in check!", opposingUsername);
-                    NotificationMessage checkNotification = new NotificationMessage(message);
-                    connections.broadcast(command.getGameID(), command.getAuthToken(), checkNotification);
-                    connections.inform(command.getGameID(), command.getAuthToken(), checkNotification);
+                    additionalNotification = new NotificationMessage(message);
+                }
+                gameDAO.updateGame(gameData);
+                connections.broadcast(command.getGameID(), command.getAuthToken(), new LoadGameMessage(game));
+                connections.inform(command.getGameID(), command.getAuthToken(), new LoadGameMessage(game));
+                connections.broadcast(command.getGameID(), command.getAuthToken(), moveNotification);
+                if (additionalNotification != null) {
+                    connections.broadcast(command.getGameID(), command.getAuthToken(), additionalNotification);
+                    connections.inform(command.getGameID(), command.getAuthToken(), additionalNotification);
                 }
             } catch (InvalidMoveException ex) {
                 connections.inform(command.getGameID(), command.getAuthToken(), new ErrorMessage(ex.getMessage()));
